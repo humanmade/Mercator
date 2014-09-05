@@ -11,10 +11,58 @@ namespace Mercator;
 
 require __DIR__ . '/class-mapping.php';
 
-add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
+bootstrap();
 
-if ( empty( $GLOBALS['wpdb']->dmtable ) ) {
-	$GLOBALS['wpdb']->dmtable = $GLOBALS['wpdb']->base_prefix . 'domain_mapping';
+/**
+ * Bootstrap Mercator up to run
+ *
+ * Checks that we can actually run Mercator, then attaches the relevant actions
+ * and filters to make it useful.
+ *
+ * Imagine this as attaching the strings to the puppet.
+ */
+function bootstrap() {
+	// Are we still in sunrise stage?
+	if ( did_action( 'muplugins_loaded' ) ) {
+		add_action( 'all_admin_notices', __NAMESPACE__ . '\\warn_late_load' );
+		return;
+	}
+
+	// Check for COOKIE_DOMAIN definition
+	//
+	// Note that this can't be an admin notice, as you'd never be able to log in
+	// to see it.
+	if ( defined( 'COOKIE_DOMAIN' ) ) {
+		status_header( 500 );
+		header( 'X-Mercator: COOKIE_DOMAIN' );
+		WP_DEBUG or exit;
+
+		wp_die( 'The constant "COOKIE_DOMAIN" is defined (probably in wp-config.php). Please remove or comment out that define() line.' );
+	}
+
+	// Define the table variables
+	if ( empty( $GLOBALS['wpdb']->dmtable ) ) {
+		$GLOBALS['wpdb']->dmtable = $GLOBALS['wpdb']->base_prefix . 'domain_mapping';
+		$GLOBALS['wpdb']->ms_global_tables[] = 'domain_mapping';
+	}
+
+	// Actually hook in!
+	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
+}
+
+/**
+ * Warn the user that Mercator was loaded too late.
+ */
+function warn_late_load() {
+	echo '<div class="error"><p>';
+	printf(
+		__(
+			'Mercator must be loaded in your <code>sunrise.php</code>. Check out the <a href="%s">installation instructions</a>.',
+			'mercator'
+		),
+		'https://github.com/humanmade/Mercator/wiki/Installation'
+	);
+	echo '</p></div>';
 }
 
 /**
