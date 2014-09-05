@@ -125,7 +125,11 @@ class Mapping {
 		}
 
 		// Cache missed, fetch from DB
+		// Suppress errors in case the table doesn't exist
+		$suppress = $wpdb->suppress_errors();
 		$mapping = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->dmtable . ' WHERE blog_id = %d', $site ) );
+		$wpdb->suppress_errors( $suppress );
+
 		if ( ! $mapping ) {
 			return null;
 		}
@@ -163,7 +167,10 @@ class Mapping {
 		$query = "SELECT * FROM {$wpdb->dmtable} WHERE domain IN ($placeholders_in) ORDER BY CHAR_LENGTH(domain) DESC LIMIT 1";
 		$query = $wpdb->prepare( $query, $domains );
 
+		// Suppress errors in case the table doesn't exist
+		$suppress = $wpdb->suppress_errors();
 		$mapping = $wpdb->get_row( $query );
+		$wpdb->suppress_errors( $suppress );
 
 		if ( empty( $mapping ) ) {
 			// Cache that it doesn't exist
@@ -243,6 +250,12 @@ class Mapping {
 			array( '%d', '%s' )
 		);
 		if ( empty( $result ) ) {
+			// Check that the table exists...
+			if ( check_table() === 'created' ) {
+				// Table created, try again
+				return static::create( $site, $domain );
+			}
+
 			return new \WP_Error( 'mercator.mapping.insert_failed' );
 		}
 

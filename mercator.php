@@ -104,3 +104,38 @@ function check_domain_mapping( $site, $domain ) {
 	define( 'DOMAIN_MAPPING', 1 );
 	return $mapped_site;
 }
+
+/**
+ * Check the Mercator mapping table
+ *
+ * @return string|boolean One of 'exists' (table already existed), 'created' (table was created), or false if could not be created
+ */
+function check_table() {
+	global $wpdb;
+
+	$schema = "CREATE TABLE {$wpdb->dmtable} (
+		id bigint(20) NOT NULL auto_increment,
+		blog_id bigint(20) NOT NULL,
+		domain varchar(255) NOT NULL,
+		active tinyint(4) default 1,
+		PRIMARY KEY  (id),
+		KEY blog_id (blog_id,domain,active)
+		KEY domain (domain)
+	);";
+
+	if ( ! function_exists( 'dbDelta' ) ) {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	}
+	$result = dbDelta( $schema );
+
+	if ( empty( $result ) ) {
+		// No changes, database already exists and is up-to-date
+		return 'exists';
+	}
+
+	return 'created';
+}
