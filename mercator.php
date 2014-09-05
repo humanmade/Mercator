@@ -16,15 +16,18 @@ const VERSION = '0.1';
 
 require __DIR__ . '/class-mapping.php';
 
-bootstrap();
+if ( defined( 'MERCATOR_SKIP_CHECKS' ) && MERCATOR_SKIP_CHECKS ) {
+	startup();
+}
+else {
+	bootstrap();
+}
 
 /**
  * Bootstrap Mercator up to run
  *
  * Checks that we can actually run Mercator, then attaches the relevant actions
  * and filters to make it useful.
- *
- * Imagine this as attaching the strings to the puppet.
  */
 function bootstrap() {
 	// Are we installing? Bail if so.
@@ -62,6 +65,16 @@ function bootstrap() {
 		wp_die( 'The constant "COOKIE_DOMAIN" is defined (probably in wp-config.php). Please remove or comment out that define() line.' );
 	}
 
+	// Start 'er up
+	startup();
+}
+
+/**
+ * Attach Mercator into WordPress
+ *
+ * Imagine this as attaching the strings to the puppet.
+ */
+function startup() {
 	// Define the table variables
 	if ( empty( $GLOBALS['wpdb']->dmtable ) ) {
 		$GLOBALS['wpdb']->dmtable = $GLOBALS['wpdb']->base_prefix . 'domain_mapping';
