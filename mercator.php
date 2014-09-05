@@ -28,6 +28,12 @@ function bootstrap() {
 		return;
 	}
 
+	// Are we actually on multisite?
+	if ( ! is_multisite() ) {
+		warn_with_message( 'Mercator requires WordPress to be in <a href="http://codex.wordpress.org/Create_A_Network">multisite mode</a>.' );
+		return;
+	}
+
 	// Are we running a good version of WP?
 	if ( ! function_exists( 'get_site_by_path' ) ) {
 		warn_with_message( 'Mercator requires <a href="https://wordpress.org/download/">WordPress 3.9</a> or newer. Update now.' );
