@@ -50,6 +50,15 @@ class Mapping {
 	}
 
 	/**
+	 * Get the domain from the mapping
+	 *
+	 * @return string
+	 */
+	public function get_domain() {
+		return $this->data->domain;
+	}
+
+	/**
 	 * Set the domain for the mapping
 	 *
 	 * @param string $domain Domain name
@@ -59,7 +68,7 @@ class Mapping {
 		global $wpdb;
 
 		// Is this the current domain?
-		if ( $this->data['domain'] === $domain ) {
+		if ( $this->data->domain === $domain ) {
 			return false;
 		}
 
@@ -82,7 +91,7 @@ class Mapping {
 			return new \WP_Error( 'mercator.mapping.update_failed' );
 		}
 
-		$this->data['domain'] = $domain;
+		$this->data->domain = $domain;
 		wp_cache_set( 'id:' . $site, $this->data, 'domain_mapping' );
 		wp_cache_set( 'domain:' . $domain, $this->data, 'domain_mapping' );
 
