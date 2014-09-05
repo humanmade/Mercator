@@ -24,13 +24,13 @@ bootstrap();
 function bootstrap() {
 	// Are we still in sunrise stage?
 	if ( did_action( 'muplugins_loaded' ) ) {
-		add_action( 'all_admin_notices', __NAMESPACE__ . '\\warn_late_load' );
+		warn_with_message( 'Mercator must be loaded in your <code>sunrise.php</code>. Check out the <a href="https://github.com/humanmade/Mercator/wiki/Installation">installation instructions</a>.' );
 		return;
 	}
 
 	// Are we running a good version of WP?
 	if ( ! function_exists( 'get_site_by_path' ) ) {
-		add_action( 'all_admin_notices', __NAMESPACE__ . '\\warn_old_version' );
+		warn_with_message( 'Mercator requires <a href="https://wordpress.org/download/">WordPress 3.9</a> or newer. Update now.' );
 		return;
 	}
 
@@ -57,33 +57,14 @@ function bootstrap() {
 }
 
 /**
- * Warn the user that Mercator was loaded too late.
+ * Warn the user via the admin panels.
+ *
+ * @param string $message Message to use in the warning.
  */
-function warn_late_load() {
-	echo '<div class="error"><p>';
-	printf(
-		__(
-			'Mercator must be loaded in your <code>sunrise.php</code>. Check out the <a href="%s">installation instructions</a>.',
-			'mercator'
-		),
-		'https://github.com/humanmade/Mercator/wiki/Installation'
-	);
-	echo '</p></div>';
-}
-
-/**
- * Warn the user that Mercator requires a newer version of WP.
- */
-function warn_old_version() {
-	echo '<div class="error"><p>';
-	printf(
-		__(
-			'Mercator requires <a href="%s">WordPress 3.9</a> or newer. Update now.',
-			'mercator'
-		),
-		'https://wordpress.org/download/'
-	);
-	echo '</p></div>';
+function warn_with_message( $message ) {
+	add_action( 'all_admin_notices', function () use ( $message ) {
+		echo '<div class="error"><p>' . $message . '</p></div>';
+	} );
 }
 
 /**
