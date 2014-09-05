@@ -9,6 +9,11 @@
 
 namespace Mercator;
 
+/**
+ * Current version of Mercator.
+ */
+const VERSION = '0.1';
+
 require __DIR__ . '/class-mapping.php';
 
 bootstrap();
