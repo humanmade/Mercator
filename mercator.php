@@ -22,6 +22,11 @@ bootstrap();
  * Imagine this as attaching the strings to the puppet.
  */
 function bootstrap() {
+	// Are we installing? Bail if so.
+	if ( defined( 'WP_INSTALLING' ) ) {
+		return;
+	}
+
 	// Are we still in sunrise stage?
 	if ( did_action( 'muplugins_loaded' ) ) {
 		warn_with_message( 'Mercator must be loaded in your <code>sunrise.php</code>. Check out the <a href="https://github.com/humanmade/Mercator/wiki/Installation">installation instructions</a>.' );
