@@ -28,6 +28,12 @@ function bootstrap() {
 		return;
 	}
 
+	// Are we running a good version of WP?
+	if ( ! function_exists( 'get_site_by_path' ) ) {
+		add_action( 'all_admin_notices', __NAMESPACE__ . '\\warn_old_version' );
+		return;
+	}
+
 	// Check for COOKIE_DOMAIN definition
 	//
 	// Note that this can't be an admin notice, as you'd never be able to log in
@@ -61,6 +67,21 @@ function warn_late_load() {
 			'mercator'
 		),
 		'https://github.com/humanmade/Mercator/wiki/Installation'
+	);
+	echo '</p></div>';
+}
+
+/**
+ * Warn the user that Mercator requires a newer version of WP.
+ */
+function warn_old_version() {
+	echo '<div class="error"><p>';
+	printf(
+		__(
+			'Mercator requires <a href="%s">WordPress 3.9</a> or newer. Update now.',
+			'mercator'
+		),
+		'https://wordpress.org/download/'
 	);
 	echo '</p></div>';
 }
