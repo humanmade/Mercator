@@ -32,6 +32,24 @@ class Mapping {
 	}
 
 	/**
+	 * Get mapping ID
+	 *
+	 * @return int Mapping ID
+	 */
+	public function get_id() {
+		return $this->data->id;
+	}
+
+	/**
+	 * Is the mapping active?
+	 *
+	 * @return boolean
+	 */
+	public function is_active() {
+		return $this->data->active == 1;
+	}
+
+	/**
 	 * Get site object
 	 *
 	 * @return stdClass|boolean {@see get_blog_details}
