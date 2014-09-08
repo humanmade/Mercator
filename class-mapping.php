@@ -26,7 +26,7 @@ class Mapping {
 	 *
 	 * @param array $data Mapping data
 	 */
-	public function __construct( $data ) {
+	protected function __construct( $data ) {
 		$this->site = $data->blog_id;
 		$this->data = $data;
 	}
@@ -96,6 +96,58 @@ class Mapping {
 		wp_cache_set( 'domain:' . $domain, $this->data, 'domain_mapping' );
 
 		return true;
+	}
+
+	/**
+	 * Convert data to Mapping instance
+	 *
+	 * Allows use as a callback, such as in `array_map`
+	 *
+	 * @param stdClass $data Raw mapping data
+	 * @return Mapping
+	 */
+	protected static function to_instance( $data ) {
+		return new static( $data );
+	}
+
+	/**
+	 * Convert list of data to Mapping instances
+	 *
+	 * @param stdClass[] $data Raw mapping rows
+	 * @return Mapping[]
+	 */
+	protected static function to_instances( $data ) {
+		return array_map( array( get_called_class(), 'to_instance' ), $data );
+	}
+
+	/**
+	 * Get mapping by mapping ID
+	 *
+	 * @param int|Mapping $mapping Mapping ID or instance
+	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 */
+	public static function get( $mapping ) {
+		// Allow passing a site object in
+		if ( $mapping instanceof Mapping ) {
+			return $mapping;
+		}
+
+		if ( ! is_numeric( $mapping ) ) {
+			return new \WP_Error( 'mercator.mapping.invalid_id' );
+		}
+
+		$mapping = absint( $mapping );
+
+		// Suppress errors in case the table doesn't exist
+		$suppress = $wpdb->suppress_errors();
+		$mapping = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->dmtable . ' WHERE id = %d', $mapping ) );
+		$wpdb->suppress_errors( $suppress );
+
+		if ( ! $mapping ) {
+			return null;
+		}
+
+		return new static( $mapping );
 	}
 
 	/**
