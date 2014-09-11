@@ -16,6 +16,9 @@ const VERSION = '0.1';
 
 require __DIR__ . '/class-mapping.php';
 
+// Allow skipping bootstrap checks if you *really* know what you're doing.
+// This lets Mercator run after muplugins_loaded, which you might need if you're
+// doing unit tests.
 if ( defined( 'MERCATOR_SKIP_CHECKS' ) && MERCATOR_SKIP_CHECKS ) {
 	startup();
 }
