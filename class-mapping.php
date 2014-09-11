@@ -264,7 +264,7 @@ class Mapping {
 	 * @param $site Site ID, or site object from {@see get_blog_details}
 	 * @return bool
 	 */
-	public function create( $site, $domain ) {
+	public static function create( $site, $domain ) {
 		global $wpdb;
 
 		// Allow passing a site object in
