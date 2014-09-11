@@ -291,14 +291,20 @@ class Mapping {
 		$domains = (array) $domains;
 
 		// Check cache first
+		$not_exists = 0;
 		foreach ( $domains as $domain ) {
 			$data = wp_cache_get( 'domain:' . $domain, 'domain_mapping' );
 			if ( ! empty( $data ) && $data !== 'notexists' ) {
 				return new static( $data );
 			}
 			elseif ( $data === 'notexists' ) {
-				return null;
+				$not_exists++;
 			}
+		}
+		if ( $not_exists === count( $domains ) ) {
+			// Every domain we checked was found in the cache, but doesn't exist
+			// so skip the query
+			return null;
 		}
 
 		$placeholders = array_fill( 0, count( $domain ), '%s' );
