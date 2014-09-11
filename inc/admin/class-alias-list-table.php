@@ -206,7 +206,7 @@ class Alias_List_Table extends WP_List_Table {
 			$action => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
 		);
 		$actions = apply_filters( 'mercator_alias_actions', $actions, $mapping );
-		$action_html = $this->row_actions( $actions, true );
+		$action_html = $this->row_actions( $actions, false );
 
 		return '<strong>' . $domain . '</strong>' . $action_html;
 	}
