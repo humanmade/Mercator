@@ -60,6 +60,7 @@ class Alias_List_Table extends WP_List_Table {
 		$actions = array(
 			'activate'   => _x( 'Activate', 'mercator' ),
 			'deactivate' => _x( 'Deactivate', 'mercator' ),
+			'delete'     => _x( 'Delete', 'mercator' ),
 		);
 
 		return apply_filters( 'mercator_alias_bulk_actions', $actions );
