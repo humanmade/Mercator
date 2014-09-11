@@ -77,41 +77,88 @@ class Mapping {
 	}
 
 	/**
+	 * Set whether the mapping is active
+	 *
+	 * @param bool $active Should the mapping be active? (True for active, false for inactive)
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 */
+	public function set_active( $active ) {
+		$data = array(
+			'active' => (bool) $active,
+		);
+		return $this->update( $data );
+	}
+
+	/**
 	 * Set the domain for the mapping
 	 *
 	 * @param string $domain Domain name
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_domain( $domain ) {
+		$data = array(
+			'domain' => $domain,
+		);
+		return $this->update( $data );
+	}
+
+	/**
+	 * Update the mapping
+	 *
+	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
+	 *
+	 * @param array|stdClass $data Mapping fields (associative array or object properties)
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 */
+	public function update( $data ) {
 		global $wpdb;
 
-		// Is this the current domain?
-		if ( $this->data->domain === $domain ) {
+		$data = (array) $data;
+		$fields = array();
+		$formats = array();
+
+		// Were we given a domain (and is it not the current one)?
+		if ( ! empty( $data['domain'] ) && $this->data->domain !== $data['domain'] ) {
+			// Does this domain exist already?
+			$existing = static::get_by_domain( $domain );
+			if ( is_wp_error( $existing ) ) {
+				return $existing;
+			}
+			if ( ! empty( $existing ) ) {
+				// Domain exists already and points to another site
+				return new \WP_Error( 'mercator.mapping.domain_exists' );
+			}
+
+			$fields['domain'] = $domain;
+			$formats[] = '%s';
+		}
+
+		// Were we given an active flag (and is it not current)?
+		if ( isset( $data['active'] ) && $this->is_active() !== (bool) $data['active'] ) {
+			$fields['active'] = (bool) $data['active'];
+			$formats[] = '%d';
+		}
+
+		// Do we have things to update?
+		if ( empty( $fields ) ) {
 			return false;
 		}
 
-		// Does this domain exist already?
-		$existing = static::get_by_domain( $domain );
-		if ( is_wp_error( $existing ) ) {
-			return $existing;
-		}
-		if ( ! empty( $existing ) ) {
-			// Domain exists already and points to another site
-			return new \WP_Error( 'mercator.mapping.domain_exists' );
-		}
-
-		$result = $wpdb->update(
-			$wpdb->dmtable,
-			array( 'domain' => $domain ),
-			array( 'blog_id' => $this->site )
-		);
+		$where = array( 'id' => $this->get_id() );
+		$where_format = array( '%d' );
+		$result = $wpdb->update( $wpdb->dmtable, $fields, $where, $formats, $where_format );
 		if ( empty( $result ) ) {
 			return new \WP_Error( 'mercator.mapping.update_failed' );
 		}
 
-		$this->data->domain = $domain;
-		wp_cache_set( 'id:' . $site, $this->data, 'domain_mapping' );
-		wp_cache_set( 'domain:' . $domain, $this->data, 'domain_mapping' );
+		// Update internal state
+		foreach ( $fields as $key => $val ) {
+			$this->data->$key = $val;
+		}
+
+		// Update the cache
+		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
+		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'domain_mapping' );
 
 		return true;
 	}
