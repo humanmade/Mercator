@@ -256,9 +256,9 @@ function output_list_page() {
 		$did_action = $_REQUEST['did_action'];
 
 		$bulk_messages = array(
-			'activated'   => _n( '%s alias activated.',   '%s aliases activated.',  $processed ),
-			'deactivated' => _n( '%s alias deactivated.', '%s aliases deactiaved.', $processed ),
-			'deleted'     => _n( '%s alias deleted.',     '%s aliases deleted.',    $processed ),
+			'activate'   => _n( '%s alias activated.',   '%s aliases activated.',  $processed ),
+			'deactivate' => _n( '%s alias deactivated.', '%s aliases deactiaved.', $processed ),
+			'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',    $processed ),
 		);
 		$bulk_messages = apply_filters( 'mercator_aliases_bulk_messages', $bulk_messages, $processed );
 
