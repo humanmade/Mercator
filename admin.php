@@ -14,7 +14,8 @@ add_filter( 'wpmu_blogs_columns',            __NAMESPACE__ . '\\add_site_list_co
 add_action( 'manage_sites_custom_column',    __NAMESPACE__ . '\\output_site_list_column', 10, 2 );
 add_action( 'admin_footer',                  __NAMESPACE__ . '\\maybe_output_site_tab' );
 add_action( 'admin_action_mercator-aliases', __NAMESPACE__ . '\\output_list_page' );
-add_action( 'admin_action_mercator-add',     __NAMESPACE__ . '\\output_add_page' );
+add_action( 'admin_action_mercator-add',     __NAMESPACE__ . '\\output_edit_page' );
+add_action( 'admin_action_mercator-edit',    __NAMESPACE__ . '\\output_edit_page' );
 add_filter( 'plugin_row_meta',               __NAMESPACE__ . '\\output_sunrise_dropin_note', -10, 4 );
 
 /**
@@ -259,14 +260,6 @@ function output_list_page() {
 
 	$wp_list_table->prepare_items( $id );
 
-	// Add message for creation
-	if ( ! empty( $_REQUEST['created'] ) ) {
-		$mapping_id = absint( $_REQUEST['created'] );
-		check_admin_referer( 'mercator-alias-added-' . $mapping_id );
-		$mapping = Mapping::get( $mapping_id );
-		$messages[] = sprintf( __( 'Created new alias %s', 'mercator' ), $mapping->get_domain() );
-	}
-
 	// Add messages for bulk actions
 	if ( ! empty( $_REQUEST['did_action'] ) ) {
 		$processed  = empty( $_REQUEST['processed'] ) ? 0 : absint( $_REQUEST['processed'] );
@@ -281,6 +274,8 @@ function output_list_page() {
 				'activate'   => __( 'Activated %s',   'mercator' ),
 				'deactivate' => __( 'Deactivated %s', 'mercator' ),
 				'delete'     => __( 'Deleted %s',     'mercator' ),
+				'add'        => __( 'Created %s',     'mercator' ),
+				'edit'       => __( 'Updated %s',     'mercator' ),
 			);
 			if ( $did_action !== 'delete' ) {
 				$mapping = Mapping::get( $mappings[0] );
@@ -298,6 +293,8 @@ function output_list_page() {
 				'activate'   => _n( '%s alias activated.',   '%s aliases activated.',  $processed ),
 				'deactivate' => _n( '%s alias deactivated.', '%s aliases deactiaved.', $processed ),
 				'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',    $processed ),
+				'add'        => _n( '%s alias created.',     '%s aliases created.',    $processed ),
+				'edit'       => _n( '%s alias updated.',     '%s aliases updated.',    $processed ),
 			);
 			$placeholder = number_format_i18n( $processed );
 		}
@@ -366,9 +363,16 @@ function validate_alias_parameters( $params, $check_permission = true ) {
  *
  * @return array|null List of errors. Issues a redirect and exits on success.
  */
-function handle_add_page_submit( $id ) {
+function handle_edit_page_submit( $id, $mapping ) {
 	$messages = array();
-	check_admin_referer( 'mercator-add-' . $id );
+	if ( empty( $mapping ) ) {
+		$did_action = 'add';
+		check_admin_referer( 'mercator-add-' . $id );
+	}
+	else {
+		$did_action = 'edit';
+		check_admin_referer( 'mercator-edit-' . $mapping->get_id() );
+	}
 
 	// Check that the parameters are correct first
 	$params = validate_alias_parameters( wp_unslash( $_POST ) );
@@ -381,11 +385,17 @@ function handle_add_page_submit( $id ) {
 
 		return $messages;
 	}
+	if ( empty( $mapping ) ) {
+		// Create the actual mapping
+		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );	
+	}
+	else {
+		// Update our existing
+		$result = $mapping->update( $params );
+	}
 
-	// Create the actual mapping
-	$mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );
-	if ( is_wp_error( $mapping ) ) {
-		$messages[] = $params->get_error_message();
+	if ( is_wp_error( $result ) ) {
+		$messages[] = $result->get_error_message();
 
 		return $messages;
 	}
@@ -393,10 +403,11 @@ function handle_add_page_submit( $id ) {
 	// Success, redirect to alias page
 	$location = add_query_arg(
 		array(
-			'action'   => 'mercator-aliases',
-			'id'       => $id,
-			'created'  => $mapping->get_id(),
-			'_wpnonce' => wp_create_nonce( 'mercator-alias-added-' . $mapping->get_id() ),
+			'action'     => 'mercator-aliases',
+			'id'         => $id,
+			'did_action' => $did_action,
+			'mappings'   => $mapping->get_id(),
+			'_wpnonce'   => wp_create_nonce( 'mercator-alias-added-' . $mapping->get_id() ),
 		),
 		network_admin_url( 'admin.php' )
 	);
@@ -407,7 +418,7 @@ function handle_add_page_submit( $id ) {
 /**
  * Output alias editing page
  */
-function output_add_page() {
+function output_edit_page() {
 
 	$id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
 
@@ -420,19 +431,38 @@ function output_add_page() {
 	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id )
 		wp_die( __( 'You do not have permission to access this page.' ) );
 
+	// Are we editing?
+	$mapping = null;
+	$form_action = network_admin_url( 'admin.php?action=mercator-add' );
+	if ( ! empty( $_REQUEST['mapping'] ) ) {
+		$mapping_id = absint( $_REQUEST['mapping'] );
+		$mapping = Mapping::get( $mapping_id );
+		if ( is_wp_error( $mapping ) || empty( $mapping ) ) {
+			wp_die( __( 'Invalid alias ID.', 'mercator' ) );
+		}
+
+		$form_action = network_admin_url( 'admin.php?action=mercator-edit' );
+	}
+
 	// Handle form submission
 	$messages = array();
 	if ( ! empty( $_POST['submit'] ) ) {
-		$messages = handle_add_page_submit( $id );
+		$messages = handle_edit_page_submit( $id, $mapping );
 	}
 
 	output_page_header( $id, $messages );
 
-	$domain = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
-	$active = ! empty( $_POST['active'] );
+	if ( empty( $mapping ) || ! empty( $_POST['_wpnonce'] ) ) {
+		$domain = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
+		$active = ! empty( $_POST['active'] );
+	}
+	else {
+		$domain = $mapping->get_domain();
+		$active = $mapping->is_active();
+	}
 
 ?>
-	<form method="post" action="admin.php?action=mercator-add">
+	<form method="post" action="<?php echo esc_url( $form_action ) ?>">
 		<table class="form-table">
 			<tr>
 				<th scope="row">
@@ -460,9 +490,19 @@ function output_add_page() {
 		</table>
 
 		<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
-		<?php wp_nonce_field( 'mercator-add-' . $id ) ?>
+		<?php
 
-		<?php submit_button( __( 'Add Alias', 'mercator' ) ) ?>
+		if ( empty( $mapping ) ) {
+			wp_nonce_field( 'mercator-add-' . $id );
+			submit_button( __( 'Add Alias', 'mercator' ) );
+		}
+		else {
+			echo '<input type="hidden" name="mapping" value="' . esc_attr( $mapping->get_id() ) . '" />';
+			wp_nonce_field( 'mercator-edit-' . $mapping->get_id() );
+			submit_button( __( 'Save Alias', 'mercator' ) );
+		}
+
+		?>
 	</form>
 <?php
 	output_page_footer();
