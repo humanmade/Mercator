@@ -255,15 +255,33 @@ function output_list_page() {
 		$processed  = empty( $_REQUEST['processed'] ) ? 0 : absint( $_REQUEST['processed'] );
 		$did_action = $_REQUEST['did_action'];
 
-		$bulk_messages = array(
-			'activate'   => _n( '%s alias activated.',   '%s aliases activated.',  $processed ),
-			'deactivate' => _n( '%s alias deactivated.', '%s aliases deactiaved.', $processed ),
-			'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',    $processed ),
-		);
+		$mappings = empty( $_REQUEST['mappings'] ) ? array() : wp_parse_id_list( $_REQUEST['mappings'] );
+		$mappings = array_map( 'absint', $mappings );
+
+		// Special case for single, as it's not really a "bulk" action
+		if ( $processed === 1 ) {
+			$mapping = Mapping::get( $mappings[0] );
+			$bulk_messages = array(
+				'activate'   => __( 'Activated %s',   'mercator' ),
+				'deactivate' => __( 'Deactivated %s', 'mercator' ),
+				'delete'     => __( 'Deleted %s',     'mercator' ),
+			);
+			$placeholder = '<code>' . $mapping->get_domain() . '</code>';
+		}
+		else {
+			// Note: we still use _n for languages which have special cases on
+			// e.g. 3, 5, 10, etc
+			$bulk_messages = array(
+				'activate'   => _n( '%s alias activated.',   '%s aliases activated.',  $processed ),
+				'deactivate' => _n( '%s alias deactivated.', '%s aliases deactiaved.', $processed ),
+				'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',    $processed ),
+			);
+			$placeholder = number_format_i18n( $processed );
+		}
 		$bulk_messages = apply_filters( 'mercator_aliases_bulk_messages', $bulk_messages, $processed );
 
 		if ( ! empty( $bulk_messages[ $did_action ] ) ) {
-			$messages[] = sprintf( $bulk_messages[ $did_action ], number_format_i18n( $processed ) );
+			$messages[] = sprintf( $bulk_messages[ $did_action ], $placeholder );
 		}
 	}
 
