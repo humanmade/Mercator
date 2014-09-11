@@ -155,7 +155,7 @@ function output_page_footer() {
 function handle_list_page_submit( $id, $action ) {
 	check_admin_referer( 'mercator-aliases-bulk-' . $id );
 
-	$sendback = remove_query_arg( array( 'did_action', 'mappings' ), wp_get_referer() );
+	$sendback = remove_query_arg( array( 'did_action', 'mappings', '_wpnonce' ), wp_get_referer() );
 	if ( ! $sendback )
 		$sendback = admin_url( $parent_file );
 

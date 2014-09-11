@@ -189,6 +189,7 @@ class Alias_List_Table extends WP_List_Table {
 			'action'   => 'mercator-aliases',
 			'id'       => $mapping->get_site_id(),
 			'mappings' => $mapping->get_id(),
+			'_wpnonce' => wp_create_nonce( 'mercator-aliases-bulk-' . $this->_args['site_id'] ),
 		);
 		if ( ! $mapping->is_active() ) {
 			$text = __( 'Activate', 'mercator' );
@@ -198,10 +199,9 @@ class Alias_List_Table extends WP_List_Table {
 			$text = __( 'Deactivate', 'mercator' );
 			$action = 'deactivate';
 		}
-		$args['map-action'] = $action;
+		$args['bulk_action'] = $action;
 
 		$link = add_query_arg( $args, network_admin_url( 'admin.php' ) );
-		$link = wp_nonce_url( $link, 'mercator-manage-' . $action );
 		$actions = array(
 			$action => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
 		);
