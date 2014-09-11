@@ -307,7 +307,7 @@ class Mapping {
 			return null;
 		}
 
-		$placeholders = array_fill( 0, count( $domain ), '%s' );
+		$placeholders = array_fill( 0, count( $domains ), '%s' );
 		$placeholders_in = implode( ',', $placeholders );
 
 		// Prepare the query
