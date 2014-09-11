@@ -86,6 +86,7 @@ function startup() {
 
 	// Actually hook in!
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
+	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
 }
 
 /**
@@ -172,4 +173,15 @@ function check_table() {
 	}
 
 	return 'created';
+}
+
+/**
+ * Load administration functions
+ *
+ * We do this here rather than just including it to avoid extra load on
+ * non-admin pages.
+ */
+function load_admin() {
+	require_once __DIR__ . '/admin.php';
+	require_once __DIR__ . '/inc/admin/class-alias-list-table.php';
 }
