@@ -207,8 +207,18 @@ class Alias_List_Table extends WP_List_Table {
 		$delete_args['bulk_action'] = 'delete';
 		$delete_link = add_query_arg( $delete_args, network_admin_url( 'admin.php' ) );
 
+		$edit_link = add_query_arg(
+			array(
+				'action'  => 'mercator-edit',
+				'id'      => $mapping->get_site_id(),
+				'mapping' => $mapping->get_id(),
+			),
+			network_admin_url( 'admin.php' )
+		);
+
 		$actions = array(
-			$action => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
+			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html__( 'Edit', 'mercator' ) ),
+			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
 			'delete' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'mercator' ) ),
 		);
 		$actions = apply_filters( 'mercator_alias_actions', $actions, $mapping );
