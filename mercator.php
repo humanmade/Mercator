@@ -133,6 +133,11 @@ function check_domain_mapping( $site, $domain ) {
 		return $site;
 	}
 
+	// Ignore non-active domains
+	if ( ! $mapping->is_active() ) {
+		return $site;
+	}
+
 	// Fetch the actual data for the site
 	$mapped_site = $mapping->get_site();
 	if ( empty( $mapped_site ) ) {
