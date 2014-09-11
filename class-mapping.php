@@ -145,6 +145,8 @@ class Mapping {
 	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get( $mapping ) {
+		global $wpdb;
+
 		// Allow passing a site object in
 		if ( $mapping instanceof Mapping ) {
 			return $mapping;
