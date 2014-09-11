@@ -393,13 +393,13 @@ function handle_add_page_submit( $id ) {
 	// Success, redirect to alias page
 	$location = add_query_arg(
 		array(
-			'action'  => 'mercator-aliases',
-			'id'      => $id,
-			'created' => $mapping->get_id(),
+			'action'   => 'mercator-aliases',
+			'id'       => $id,
+			'created'  => $mapping->get_id(),
+			'_wpnonce' => wp_create_nonce( 'mercator-alias-added-' . $mapping->get_id() ),
 		),
 		network_admin_url( 'admin.php' )
 	);
-	$location = wp_nonce_url( $location, 'mercator-alias-added-' . $mapping->get_id() );
 	wp_safe_redirect( $location );
 	exit;
 }
