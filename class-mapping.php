@@ -394,6 +394,7 @@ class Mapping {
 
 		// Ensure the cache is flushed
 		wp_cache_delete( 'id:' . $site, 'domain_mapping' );
+		wp_cache_delete( 'domain:' . $domain, 'domain_mapping' );
 
 		return static::get( $wpdb->insert_id );
 	}
