@@ -311,7 +311,7 @@ class Mapping {
 	 * @param $site Site ID, or site object from {@see get_blog_details}
 	 * @return bool
 	 */
-	public static function create( $site, $domain ) {
+	public static function create( $site, $domain, $active = false ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -324,6 +324,7 @@ class Mapping {
 		}
 
 		$site = absint( $site );
+		$active = (bool) $active;
 
 		// Did we get a full URL?
 		if ( strpos( $domain, '://' ) !== false ) {
@@ -350,8 +351,8 @@ class Mapping {
 		// Create the mapping!
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
-			array( 'blog_id' => $site, 'domain' => $domain ),
-			array( '%d', '%s' )
+			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active ),
+			array( '%d', '%s', '%d' )
 		);
 		if ( empty( $result ) ) {
 			// Check that the table exists...
