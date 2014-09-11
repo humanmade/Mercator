@@ -84,6 +84,9 @@ function startup() {
 		$GLOBALS['wpdb']->ms_global_tables[] = 'domain_mapping';
 	}
 
+	// Ensure cache is shared
+	wp_cache_add_global_groups( array( 'domain_mapping' ) );
+
 	// Actually hook in!
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
