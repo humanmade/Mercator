@@ -189,23 +189,23 @@ class Mapping {
 		$site = absint( $site );
 
 		// Check cache first
-		$mapping = wp_cache_get( 'id:' . $site, 'domain_mapping' );
-		if ( ! empty( $mapping ) ) {
-			return new static( $mapping );
+		$mappings = wp_cache_get( 'id:' . $site, 'domain_mapping' );
+		if ( ! empty( $mappings ) ) {
+			return static::to_instances( $mappings );
 		}
 
 		// Cache missed, fetch from DB
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$mapping = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->dmtable . ' WHERE blog_id = %d', $site ) );
+		$mappings = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->dmtable . ' WHERE blog_id = %d', $site ) );
 		$wpdb->suppress_errors( $suppress );
 
-		if ( ! $mapping ) {
+		if ( ! $mappings ) {
 			return null;
 		}
 
-		wp_cache_set( 'id:' . $site, $mapping, 'domain_mapping' );
-		return new static( $mapping );
+		wp_cache_set( 'id:' . $site, $mappings, 'domain_mapping' );
+		return static::to_instances( $mappings );
 	}
 
 	/**
@@ -298,21 +298,6 @@ class Mapping {
 			return $existing;
 		}
 
-		// Does this blog have a mapping already?
-		$existing = static::get_by_site( $site );
-		if ( is_wp_error( $existing ) ) {
-			return $existing;
-		}
-		if ( ! empty( $existing ) ) {
-			// Mapping exists, update domain
-			$result = $existing->set_domain( $domain );
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-
-			return $existing;
-		}
-
 		// Create the mapping!
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
@@ -332,6 +317,6 @@ class Mapping {
 		// Ensure the cache is flushed
 		wp_cache_delete( 'id:' . $site, 'domain_mapping' );
 
-		return static::get_by_site( $site );
+		return static::get( $wpdb->insert_id );
 	}
 }
