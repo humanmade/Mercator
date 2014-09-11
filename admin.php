@@ -407,6 +407,7 @@ function handle_edit_page_submit( $id, $mapping ) {
 			'id'         => $id,
 			'did_action' => $did_action,
 			'mappings'   => $mapping->get_id(),
+			'processed'  => 1,
 			'_wpnonce'   => wp_create_nonce( 'mercator-alias-added-' . $mapping->get_id() ),
 		),
 		network_admin_url( 'admin.php' )
