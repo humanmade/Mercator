@@ -168,6 +168,10 @@ function handle_list_page_submit( $id, $action ) {
 	}
 
 	$processed = 0;
+	$args = array(
+		'did_action' => $action,
+		'mappings'   => join( ',', $mappings ),
+	);
 	switch ( $action ) {
 		case 'activate':
 			foreach ( $mappings as $id ) {
@@ -195,16 +199,29 @@ function handle_list_page_submit( $id, $action ) {
 			}
 			break;
 
+		case 'delete':
+			$args['domains'] = array();
+			foreach ( $mappings as $id ) {
+				$mapping = Mapping::get( $id );
+				if ( is_wp_error( $mapping ) ) {
+					continue;
+				}
+
+				if ( $mapping->delete() ) {
+					// Mappings don't exist after we delete them, so pass the
+					// domain for messages and such
+					$args['domains'][] = $mapping->get_domain();
+					$processed++;
+				}
+			}
+			break;
+
 		default:
 			do_action_ref_array( "mercator_aliases_bulk_action-{$action}", array( $mappings, &$processed, $action ) );
 			break;
 	}
 
-	$args = array(
-		'did_action' => $action,
-		'processed'  => $processed,
-		'mappings'   => join( ',', $mappings ),
-	);
+	$args['processed'] = $processed;
 	$sendback = add_query_arg( $args, $sendback );
 
 	wp_safe_redirect( $sendback );
@@ -260,13 +277,19 @@ function output_list_page() {
 
 		// Special case for single, as it's not really a "bulk" action
 		if ( $processed === 1 ) {
-			$mapping = Mapping::get( $mappings[0] );
 			$bulk_messages = array(
 				'activate'   => __( 'Activated %s',   'mercator' ),
 				'deactivate' => __( 'Deactivated %s', 'mercator' ),
 				'delete'     => __( 'Deleted %s',     'mercator' ),
 			);
-			$placeholder = '<code>' . $mapping->get_domain() . '</code>';
+			if ( $did_action !== 'delete' ) {
+				$mapping = Mapping::get( $mappings[0] );
+				$domain = $mapping->get_domain();
+			}
+			else {
+				$domain = empty( $_REQUEST['domains'] ) ? array() : $_REQUEST['domains'][0];
+			}
+			$placeholder = '<code>' . $domain . '</code>';
 		}
 		else {
 			// Note: we still use _n for languages which have special cases on

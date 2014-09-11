@@ -164,6 +164,28 @@ class Mapping {
 	}
 
 	/**
+	 * Delete the mapping
+	 *
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 */
+	public function delete() {
+		global $wpdb;
+
+		$where = array( 'id' => $this->get_id() );
+		$where_format = array( '%d' );
+		$result = $wpdb->delete( $wpdb->dmtable, $where, $where_format );
+		if ( empty( $result ) ) {
+			return new \WP_Error( 'mercator.mapping.delete_failed' );
+		}
+
+		// Update the cache
+		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
+		wp_cache_delete( 'domain:' . $this->get_domain(), 'domain_mapping' );
+
+		return true;
+	}
+
+	/**
 	 * Convert data to Mapping instance
 	 *
 	 * Allows use as a callback, such as in `array_map`
