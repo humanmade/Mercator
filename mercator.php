@@ -64,7 +64,7 @@ function bootstrap() {
 		status_header( 500 );
 		header( 'X-Mercator: COOKIE_DOMAIN' );
 
-		wp_die( 'The constant "COOKIE_DOMAIN" is defined (probably in wp-config.php). Please remove or comment out that define() line.' );
+		wp_die( 'The constant <code>COOKIE_DOMAIN</code> is defined (probably in <code>wp-config.php</code>). Please remove or comment out that <code>define()</code> line.' );
 	}
 
 	// Start 'er up
