@@ -23,16 +23,16 @@ if ( defined( 'MERCATOR_SKIP_CHECKS' ) && MERCATOR_SKIP_CHECKS ) {
 	startup();
 }
 else {
-	bootstrap();
+	run_preflight();
 }
 
 /**
- * Bootstrap Mercator up to run
+ * Perform preflight checks for Mercator
  *
  * Checks that we can actually run Mercator, then attaches the relevant actions
  * and filters to make it useful.
  */
-function bootstrap() {
+function run_preflight() {
 	// Are we installing? Bail if so.
 	if ( defined( 'WP_INSTALLING' ) ) {
 		return;
@@ -67,7 +67,8 @@ function bootstrap() {
 		wp_die( 'The constant <code>COOKIE_DOMAIN</code> is defined (probably in <code>wp-config.php</code>). Please remove or comment out that <code>define()</code> line.' );
 	}
 
-	// Start 'er up
+	// M: We have clearance, Clarence.
+	// O: Roger, Roger. What's our Vector Victor?
 	startup();
 }
 
