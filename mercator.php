@@ -63,7 +63,6 @@ function bootstrap() {
 	if ( defined( 'COOKIE_DOMAIN' ) ) {
 		status_header( 500 );
 		header( 'X-Mercator: COOKIE_DOMAIN' );
-		WP_DEBUG or exit;
 
 		wp_die( 'The constant "COOKIE_DOMAIN" is defined (probably in wp-config.php). Please remove or comment out that define() line.' );
 	}
