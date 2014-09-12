@@ -144,7 +144,7 @@ function check_domain_mapping( $site, $domain ) {
 		return $site;
 	}
 
-	define( 'DOMAIN_MAPPING', 1 );
+	defined( 'DOMAIN_MAPPING' ) or define( 'DOMAIN_MAPPING', 1 );
 	return $mapped_site;
 }
 
