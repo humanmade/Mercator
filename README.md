@@ -25,6 +25,15 @@ require WPMU_PLUGIN_DIR . '/mercator/mercator.php';
 
 ```
 
+## Upgrading from WPMU Domain Mapping
+This plugin is a complete replacement for WPMU Domain Mapping. The database
+structure is fully compatible.
+
+Note that if you have Domain Mapping code in your sunrise, you should remove
+this and replace it with the recommended sunrise code above. Mercator hooks in
+to WordPress' internal site mapping code rather than replacing it, unlike Domain
+Mapping.
+
 ## License
 Mercator is licensed under the GPLv2 or later.
 
