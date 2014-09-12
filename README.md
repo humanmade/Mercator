@@ -7,8 +7,6 @@ features and abilities to improve your world.
 
 Stop using outdated practices, and start making sense.
 
-**Important: Mercator is not production ready. Do not use.**
-
 ## Requirements
 Mercator requires WordPress 3.9 or newer for the new sunrise processes. Mercator
 also requires PHP 5.3+ due to the use of namespaced code.
