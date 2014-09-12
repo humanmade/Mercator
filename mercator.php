@@ -144,6 +144,8 @@ function check_domain_mapping( $site, $domain ) {
 		return $site;
 	}
 
+	// Note: This is only for backwards compatibility with WPMU Domain Mapping,
+	// do not rely on this constant in new code.
 	defined( 'DOMAIN_MAPPING' ) or define( 'DOMAIN_MAPPING', 1 );
 	return $mapped_site;
 }
