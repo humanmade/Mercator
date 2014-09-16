@@ -164,7 +164,7 @@ function check_table() {
 		domain varchar(255) NOT NULL,
 		active tinyint(4) default 1,
 		PRIMARY KEY  (id),
-		KEY blog_id (blog_id,domain,active)
+		KEY blog_id (blog_id,domain,active),
 		KEY domain (domain)
 	);";
 
