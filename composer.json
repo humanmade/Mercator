@@ -1,0 +1,19 @@
+{
+  "name":"humanmade/mercator",
+  "description":"Lets you easily create metaboxes with custom fields that will blow your mind.",
+  "homepage":"https://github.com/humanmade/Mercator",
+  "keywords":[
+    "wordpress"
+  ],
+  "license":"GPL-2.0+",
+  "authors":[
+    {
+      "name":"Human Made Limited",
+      "email":"support@humanmade.co.uk",
+      "homepage":"http://hmn.md/"
+    }
+  ]
+  "require": {
+    "composer/installers": "~1.0"
+   }
+}
