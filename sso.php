@@ -96,6 +96,31 @@ function initialize_cookie_domain() {
 }
 
 /**
+ * Get the cookie domain for a network
+ *
+ * Correctly handles custom cookie domains, falling back to main domains,
+ * stripping WWW prefixes, etc.
+ *
+ * @param stdClass $network Network object
+ * @return string Cookie domain (with leading .)
+ */
+function get_cookie_domain( $network ) {
+	if ( ! empty( $network->cookie_domain ) ) {
+		$cookie_domain = '.' . $network->cookie_domain;
+	}
+	else {
+		$cookie_domain = '.' . $network->domain;
+
+		// Remove WWW if the domain has it
+		if ( '.www.' === substr( $cookie_domain, 0, 5 ) ) {
+			$cookie_domain = substr( $cookie_domain, 4 );
+		}
+	}
+
+	return $cookie_domain;
+}
+
+/**
  * Is this on the main domain for the network?
  *
  * @param string $domain Domain to check, defaults to the current host
@@ -124,17 +149,7 @@ function is_main_domain( $domain = null, $network = null ) {
 	 */
 	$network = apply_filters( 'mercator.sso.main_domain_network', $network, $domain, $supplied_network );
 
-	if ( ! empty( $network->cookie_domain ) ) {
-		$cookie_domain = '.' . $network->cookie_domain;
-	}
-	else {
-		$cookie_domain = '.' . $network->domain;
-
-		// Remove WWW if the domain has it
-		if ( '.www.' === substr( $cookie_domain, 0, 5 ) ) {
-			$cookie_domain = substr( $cookie_domain, 4 );
-		}
-	}
+	$cookie_domain = get_cookie_domain( $network );
 	$cookie_domain_length = strlen( $cookie_domain );
 
 	// INTERNAL NOTE: While I typically hate this pattern of nested-ifs, and I'd
@@ -205,7 +220,13 @@ function get_main_site( $network_id = null ) {
  * @return string URL for the given action
  */
 function get_action_url( $action, $args = array() ) {
-	$main_site = get_main_site();
+	/**
+	 * Main site used for action URLs
+	 *
+	 * @param int Site ID
+	 */
+	$main_site = apply_filters( 'mercator.sso.main_site_for_actions', get_main_site() );
+
 	$script_url = get_admin_url( $main_site, 'admin-ajax.php' );
 
 	$defaults = array(
