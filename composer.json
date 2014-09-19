@@ -1,0 +1,20 @@
+{
+	"name": "humanmade/mercator",
+	"description": "WordPress multisite domain mapping for the modern era.",
+	"homepage": "https://github.com/humanmade/Mercator",
+	"keywords": [
+		"wordpress"
+	],
+	"license": "GPL-2.0+",
+	"authors": [
+		{
+			"name":"Human Made Limited",
+			"email":"support@humanmade.co.uk",
+			"homepage":"http://hmn.md/"
+		}
+	],
+	"type": "wordpress-muplugin",
+	"require": {
+		"composer/installers": "~1.0"
+	 }
+}
