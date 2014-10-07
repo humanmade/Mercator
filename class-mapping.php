@@ -337,7 +337,7 @@ class Mapping {
 	 * Create a new domain mapping
 	 *
 	 * @param $site Site ID, or site object from {@see get_blog_details}
-	 * @return bool
+	 * @return Mapping|WP_Error
 	 */
 	public static function create( $site, $domain, $active = false ) {
 		global $wpdb;
