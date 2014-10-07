@@ -34,7 +34,7 @@ class Mapping_Command extends WP_CLI_Command {
 		};
 		$display_items = Utils\iterator_map( $mappings, $mapper );
 
-		$formatter = new \WP_CLI\Formatter( $options );
+		$formatter = new Formatter( $options );
 		$formatter->display_items( $display_items );
 	}
 
