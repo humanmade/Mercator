@@ -39,6 +39,8 @@ class Network_Mapping {
 	/**
 	 * Constructor
 	 *
+	 * @param int $id Mapping ID
+	 * @param int $network Network ID
 	 * @param array $data Mapping data
 	 */
 	protected function __construct( $id, $network, $data ) {
