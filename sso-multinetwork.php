@@ -3,6 +3,7 @@
 namespace Mercator\SSO\Multinetwork;
 
 use Mercator\SSO;
+use Mercator\Multinetwork;
 
 // Add in to Mercator load
 add_action( 'mercator_load', __NAMESPACE__ . '\\run_preflight' );
@@ -19,9 +20,11 @@ function is_enabled() {
 	 * Filter this value to turn single-sign-on on/off completely, or
 	 * conditionally enable it instead.
 	 *
+	 * Defaults to the value of {@see Multinetwork\is_enabled()}.
+	 *
 	 * @param bool $enabled Should SSO be enabled? (True for on, false-ish for off.)
 	 */
-	return apply_filters( 'mercator.sso.multinetwork.enabled', false );
+	return apply_filters( 'mercator.sso.multinetwork.enabled', Multinetwork\is_enabled() );
 }
 
 /**
