@@ -15,6 +15,8 @@ namespace Mercator;
 const VERSION = '0.1';
 
 require __DIR__ . '/class-mapping.php';
+require __DIR__ . '/sso.php';
+require __DIR__ . '/sso-multinetwork.php';
 
 // Allow skipping bootstrap checks if you *really* know what you're doing.
 // This lets Mercator run after muplugins_loaded, which you might need if you're
@@ -56,17 +58,6 @@ function run_preflight() {
 		return;
 	}
 
-	// Check for COOKIE_DOMAIN definition
-	//
-	// Note that this can't be an admin notice, as you'd never be able to log in
-	// to see it.
-	if ( defined( 'COOKIE_DOMAIN' ) ) {
-		status_header( 500 );
-		header( 'X-Mercator: COOKIE_DOMAIN' );
-
-		wp_die( 'The constant <code>COOKIE_DOMAIN</code> is defined (probably in <code>wp-config.php</code>). Please remove or comment out that <code>define()</code> line.' );
-	}
-
 	// M: We have clearance, Clarence.
 	// O: Roger, Roger. What's our Vector Victor?
 	startup();
@@ -90,6 +81,13 @@ function startup() {
 	// Actually hook in!
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
+
+	/**
+	 * Fired after Mercator core has been loaded
+	 *
+	 * Hook into this to handle any add-on functionality.
+	 */
+	do_action( 'mercator_load' );
 }
 
 /**
