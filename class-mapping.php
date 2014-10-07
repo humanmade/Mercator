@@ -120,7 +120,7 @@ class Mapping {
 		// Were we given a domain (and is it not the current one)?
 		if ( ! empty( $data['domain'] ) && $this->data->domain !== $data['domain'] ) {
 			// Does this domain exist already?
-			$existing = static::get_by_domain( $domain );
+			$existing = static::get_by_domain( $data['domain'] );
 			if ( is_wp_error( $existing ) ) {
 				return $existing;
 			}
@@ -129,7 +129,7 @@ class Mapping {
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
 
-			$fields['domain'] = $domain;
+			$fields['domain'] = $data['domain'];
 			$formats[] = '%s';
 		}
 
