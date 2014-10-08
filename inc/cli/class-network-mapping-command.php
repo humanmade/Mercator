@@ -2,32 +2,32 @@
 
 namespace Mercator\CLI;
 
-use Mercator\Mapping;
+use Mercator\Network_Mapping;
 use WP_CLI;
 use WP_CLI_Command;
 use WP_CLI\Formatter;
 use WP_CLI\Utils;
 use WP_Error;
 
-class Mapping_Command extends WP_CLI_Command {
+class Network_Mapping_Command extends WP_CLI_Command {
 	/**
 	 * Display a list of mappings
 	 *
-	 * @param Mapping[] $mappings Mapping objects to show
+	 * @param Network_Mapping[] $mappings Mapping objects to show
 	 * @param array $options
 	 */
 	protected function display( $mappings, $options ) {
 		$defaults = array(
 			'format' => 'table',
-			'fields' => array( 'id', 'domain', 'site', 'active' ),
+			'fields' => array( 'id', 'domain', 'network', 'active' ),
 		);
 		$options = wp_parse_args( $options, $defaults );
 
-		$mapper = function ( Mapping $mapping ) {
+		$mapper = function ( Network_Mapping $mapping ) {
 			$data = array(
 				'id'     => (int) $mapping->get_id(),
 				'domain' => $mapping->get_domain(),
-				'site'   => (int) $mapping->get_site_id(),
+				'network'   => (int) $mapping->get_network_id(),
 				'active' => $mapping->is_active() ? __( 'Active', 'mercator' ) : __( 'Inactive', 'mercator' ),
 			);
 			return apply_filters( 'mercator.cli.mapping.fields', $data, $mapping );
@@ -41,8 +41,8 @@ class Mapping_Command extends WP_CLI_Command {
 	/**
 	 * ## OPTIONS
 	 *
-	 * [<site>]
-	 * : Site ID (defaults to current site, use `--url=...`)
+	 * [<network>]
+	 * : Network ID (defaults to current network, use `--url=...`)
 	 *
 	 * [--format=<format>]
 	 * : Format to display as (table, json, csv, count)
@@ -50,9 +50,9 @@ class Mapping_Command extends WP_CLI_Command {
 	 * @subcommand list
 	 */
 	public function list_( $args, $assoc_args ) {
-		$id = empty( $args[0] ) ? get_current_blog_id() : absint( $args[0] );
+		$id = empty( $args[0] ) ? get_current_site()->id : absint( $args[0] );
 
-		$mappings = Mapping::get_by_site( $id );
+		$mappings = Network_Mapping::get_by_network( $id );
 
 		if ( empty( $mappings ) ) {
 			return;
@@ -73,7 +73,7 @@ class Mapping_Command extends WP_CLI_Command {
 	 * : Format to display as (table, json, csv, count)
 	 */
 	public function get( $args, $assoc_args ) {
-		$mapping = Mapping::get( $args[0] );
+		$mapping = Network_Mapping::get( $args[0] );
 
 		if ( empty( $mapping ) ) {
 			$mapping = new WP_Error( 'mercator.cli.mapping_not_found', __( 'Invalid mapping ID', 'mercator' ) );
@@ -96,7 +96,7 @@ class Mapping_Command extends WP_CLI_Command {
 	 * : Mapping ID
 	 */
 	public function delete( $args ) {
-		$mapping = Mapping::get( $args[0] );
+		$mapping = Network_Mapping::get( $args[0] );
 
 		if ( empty( $mapping ) ) {
 			$mapping = new WP_Error( 'mercator.cli.mapping_not_found', __( 'Invalid mapping ID', 'mercator' ) );

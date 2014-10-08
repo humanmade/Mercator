@@ -17,11 +17,14 @@ use WP_CLI;
 const VERSION = '0.1';
 
 require __DIR__ . '/class-mapping.php';
+require __DIR__ . '/class-network-mapping.php';
+require __DIR__ . '/multinetwork.php';
 require __DIR__ . '/sso.php';
 require __DIR__ . '/sso-multinetwork.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/inc/cli/class-mapping-command.php';
+	require_once __DIR__ . '/inc/cli/class-network-mapping-command.php';
 }
 
 // Allow skipping bootstrap checks if you *really* know what you're doing.
@@ -91,6 +94,7 @@ function startup() {
 	// Add CLI commands
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		WP_CLI::add_command( 'mercator mapping', __NAMESPACE__ . '\\CLI\\Mapping_Command' );
+		WP_CLI::add_command( 'mercator network-mapping', __NAMESPACE__ . '\\CLI\\Network_Mapping_Command' );
 	}
 
 	/**
