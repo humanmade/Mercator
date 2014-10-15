@@ -377,16 +377,28 @@ class Mapping {
 		}
 
 		// Create the mapping!
+		$prev_errors = $GLOBALS['EZSQL_ERROR'];
+		$suppress = $wpdb->suppress_errors( true );
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
 			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active ),
 			array( '%d', '%s', '%d' )
 		);
+		$wpdb->suppress_errors( $suppress );
+
 		if ( empty( $result ) ) {
 			// Check that the table exists...
 			if ( check_table() === 'created' ) {
 				// Table created, try again
 				return static::create( $site, $domain );
+			}
+
+			// Other error. We suppressed errors before, so we need to make sure
+			// we handle that now.
+			$recent_errors = array_diff_key( $GLOBALS['EZSQL_ERROR'], $prev_errors );
+			while ( count( $recent_errors ) > 0 ) {
+				$error = array_shift( $recent_errors );
+				$wpdb->print_error( $error['error_str'] );
 			}
 
 			return new \WP_Error( 'mercator.mapping.insert_failed' );
