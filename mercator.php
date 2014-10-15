@@ -188,7 +188,16 @@ function check_table() {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	}
+
+	// Ensure we always try to create this, regardless of whether we're on the
+	// main site or not. dbDelta will skip creation of global tables on
+	// non-main sites.
+	$offset = array_search( 'domain_mapping', $wpdb->ms_global_tables );
+	if ( ! empty( $offset ) ) {
+		unset( $wpdb->ms_global_tables[ $offset ] );
+	}
 	$result = dbDelta( $schema );
+	$wpdb->ms_global_tables[] = 'domain_mapping';
 
 	if ( empty( $result ) ) {
 		// No changes, database already exists and is up-to-date
