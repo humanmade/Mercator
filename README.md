@@ -24,6 +24,12 @@ require WPMU_PLUGIN_DIR . '/mercator/mercator.php';
 
 ```
 
+Additionally, in order for `sunrise.php` to be loaded, you must add the following to your `wp-config.php`:
+
+```
+define('SUNRISE', true);
+```
+
 ## Upgrading from WPMU Domain Mapping
 This plugin is a complete replacement for WPMU Domain Mapping. The database
 structure is fully compatible.
