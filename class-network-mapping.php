@@ -175,7 +175,7 @@ class Network_Mapping {
 
 		$where = array( 'meta_id' => $this->get_id() );
 		$result = $wpdb->update( $wpdb->sitemeta, $fields, $where, $field_formats, array( '%d' ) );
-		if ( empty( $result ) ) {
+		if ( empty( $result ) && ! empty( $wpdb->last_error ) ) {
 			return new WP_Error( 'mercator.mapping.update_failed' );
 		}
 

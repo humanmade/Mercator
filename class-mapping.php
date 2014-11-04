@@ -147,7 +147,7 @@ class Mapping {
 		$where = array( 'id' => $this->get_id() );
 		$where_format = array( '%d' );
 		$result = $wpdb->update( $wpdb->dmtable, $fields, $where, $formats, $where_format );
-		if ( empty( $result ) ) {
+		if ( empty( $result ) && ! empty( $wpdb->last_error ) ) {
 			return new \WP_Error( 'mercator.mapping.update_failed' );
 		}
 
