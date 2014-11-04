@@ -39,7 +39,7 @@ function run_preflight() {
 	// Y: What's that?
 	// X: It's the room at the front of the airplane where they control it, but
 	//    that's not important right now.
-	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\bootstrap' );
+	bootstrap();
 }
 
 /**
