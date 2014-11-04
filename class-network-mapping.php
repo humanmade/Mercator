@@ -365,7 +365,7 @@ class Network_Mapping {
 		}
 
 		// Grab the longest domain we can
-		usort( $rows, 'sort_rows_by_domain_length' );
+		usort( $rows, array( get_called_class(), 'sort_rows_by_domain_length' ) );
 		$row = array_pop( $rows );
 
 		wp_cache_set( 'domain:' . $row->meta_key, $row, 'network_mapping' );
