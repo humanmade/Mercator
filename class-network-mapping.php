@@ -355,7 +355,7 @@ class Network_Mapping {
 		$rows = $wpdb->get_results( $query );
 		$wpdb->suppress_errors( $suppress );
 
-		if ( empty( $row ) ) {
+		if ( empty( $rows ) ) {
 			// Cache that it doesn't exist
 			foreach ( $domains as $domain ) {
 				wp_cache_set( 'domain:' . $domain, 'notexists', 'network_mapping' );
