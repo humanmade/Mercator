@@ -90,6 +90,7 @@ function startup() {
 	// Actually hook in!
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
+	add_action( 'delete_blog', __NAMESPACE__ . '\\clear_mappings_on_delete' );
 
 	// Add CLI commands
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -216,4 +217,26 @@ function check_table() {
 function load_admin() {
 	require_once __DIR__ . '/admin.php';
 	require_once __DIR__ . '/inc/admin/class-alias-list-table.php';
+}
+
+/**
+ * Clear mappings for a site when it's deleted
+ *
+ * @param int $site_id Site being deleted
+ */
+function clear_mappings_on_delete( $site_id ) {
+	$mappings = Mapping::get_by_site( $site_id );
+
+	foreach ( $mappings as $mapping ) {
+		$error = $mapping->delete();
+
+		if ( is_wp_error( $error ) ) {
+			$message = sprintf(
+				__( 'Unable to delete mapping %d for site %d', 'mercator' ),
+				$mapping->get_id(),
+				$site_id
+			);
+			trigger_error( $message, E_USER_WARNING );
+		}
+	}
 }
