@@ -381,7 +381,7 @@ class Network_Mapping {
 	 * @param stdClass $b Second row
 	 * @return int <0 if $a is "less" (shorter), 0 if equal, >0 if $a is "more" (longer)
 	 */
-	protected function sort_rows_by_domain_length( $a, $b ) {
+	protected static function sort_rows_by_domain_length( $a, $b ) {
 		$a_data = unserialize( $a->meta_value );
 		$b_data = unserialize( $b->meta_value );
 
