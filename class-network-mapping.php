@@ -424,7 +424,7 @@ class Network_Mapping {
 		}
 		if ( ! empty( $existing ) ) {
 			// Domain exists already...
-			if ( $network !== $mapping->get_network_id() ) {
+			if ( $network !== $existing->get_network_id() ) {
 				// ...and points to another site
 				return new WP_Error( 'mercator.mapping.domain_exists' );
 			}
