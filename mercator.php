@@ -147,8 +147,21 @@ function check_domain_mapping( $site, $domain ) {
 		return $site;
 	}
 
-	// Ignore non-active domains
-	if ( ! $mapping->is_active() ) {
+	/**
+	 * Determine whether a mapping should be used
+	 *
+	 * Typically, you'll want to only allow active mappings to be used. However,
+	 * if you want to use more advanced logic, or allow non-active domains to
+	 * be mapped too, simply filter here.
+	 *
+	 * @param boolean $is_active Should the mapping be treated as active?
+	 * @param Mapping $mapping Mapping that we're inspecting
+	 * @param string $domain
+	 */
+	$is_active = apply_filters( 'mercator.use_mapping', $mapping->is_active(), $mapping, $domain );
+
+	// Ignore non-active mappings
+	if ( ! $is_active ) {
 		return $site;
 	}
 
