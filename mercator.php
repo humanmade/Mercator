@@ -91,6 +91,7 @@ function startup() {
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
 	add_action( 'delete_blog', __NAMESPACE__ . '\\clear_mappings_on_delete' );
+	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\register_mapped_filters' );
 
 	// Add CLI commands
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -252,4 +253,64 @@ function clear_mappings_on_delete( $site_id ) {
 			trigger_error( $message, E_USER_WARNING );
 		}
 	}
+}
+
+/**
+ * Register filters for URLs, if we've mapped
+ */
+function register_mapped_filters() {
+	$current_site = $GLOBALS['current_blog'];
+	$real_domain = $current_site->domain;
+	$domain = $_SERVER['HTTP_HOST'];
+
+	if ( $domain === $real_domain ) {
+		// Domain hasn't been mapped
+		return;
+	}
+
+	// Grab both WWW and no-WWW
+	if ( strpos( $domain, 'www.' ) === 0 ) {
+		$www = $domain;
+		$nowww = substr( $domain, 4 );
+	}
+	else {
+		$nowww = $domain;
+		$www = 'www.' . $domain;
+	}
+
+	$mapping = Mapping::get_by_domain( array( $www, $nowww ) );
+	if ( empty( $mapping ) || is_wp_error( $mapping ) ) {
+		return;
+	}
+
+	$GLOBALS['mercator_current_mapping'] = $mapping;
+	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+}
+
+/**
+ * Mangle the home URL to give our primary domain
+ *
+ * @param string $url The complete home URL including scheme and path.
+ * @param string $path Path relative to the home URL. Blank string if no path is specified.
+ * @param string|null $orig_scheme Scheme to give the home URL context. Accepts 'http', 'https', 'relative' or null.
+ * @param int|null $site_id Blog ID, or null for the current blog.
+ * @return string Mangled URL
+ */
+function mangle_url( $url, $path, $orig_scheme, $site_id ) {
+	if ( empty( $site_id ) ) {
+		$site_id = get_current_blog_id();
+	}
+
+	$current_mapping = $GLOBALS['mercator_current_mapping'];
+	if ( empty( $current_mapping ) || $site_id !== (int) $current_mapping->get_site_id() ) {
+		return $url;
+	}
+
+	// Replace the domain
+	$domain = parse_url( $url, PHP_URL_HOST );
+	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
+	$mangled = preg_replace( $regex, '\1' . $current_mapping->get_domain(), $url );
+
+	return $mangled;
 }
