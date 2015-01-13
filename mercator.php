@@ -286,6 +286,8 @@ function register_mapped_filters() {
 	$GLOBALS['mercator_current_mapping'] = $mapping;
 	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+	add_filter( 'content_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+	add_filter( 'plugins_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 }
 
 /**
