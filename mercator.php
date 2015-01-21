@@ -91,7 +91,7 @@ function startup() {
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
 	add_action( 'delete_blog', __NAMESPACE__ . '\\clear_mappings_on_delete' );
-	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\register_mapped_filters' );
+	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\register_mapped_filters', -10 );
 
 	// Add CLI commands
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {

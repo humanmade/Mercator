@@ -72,22 +72,14 @@ function bootstrap() {
  * Ensure COOKIE_DOMAIN is always set to the current domain
  */
 function initialize_cookie_domain() {
-
-	// Do the ms-settings dance, again.
-	$domain = strtolower( wp_unslash( $_SERVER['HTTP_HOST'] ) );
-	$path = stripslashes( $_SERVER['REQUEST_URI'] );
-	if ( is_admin() ) {
-		$path = preg_replace( '#(.*)/wp-admin/.*#', '$1/', $path );
-	}
-	list( $path ) = explode( '?', $path );
-
-	$site = get_site_by_path( $domain, $path, 1 );
-	if ( empty( $site ) ) {
-		// We don't actually have a site, bail out
+	if ( empty( $GLOBALS['mercator_current_mapping'] ) ) {
 		return;
 	}
 
-	$cookie_domain = $domain;
+	// Do the ms-settings dance, again.
+	$current_mapping = $GLOBALS['mercator_current_mapping'];
+
+	$cookie_domain = $current_mapping->get_domain();
 	if ( substr( $cookie_domain, 0, 4 ) === 'www.' ) {
 		$cookie_domain = substr( $cookie_domain, 4 );
 	}
