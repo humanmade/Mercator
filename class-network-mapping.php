@@ -358,7 +358,8 @@ class Network_Mapping {
 		if ( empty( $rows ) ) {
 			// Cache that it doesn't exist
 			foreach ( $domains as $domain ) {
-				wp_cache_set( 'domain:' . $domain, 'notexists', 'network_mapping' );
+				$key = static::key_for_domain( $domain );
+				wp_cache_set( 'domain:' . $key, 'notexists', 'network_mapping' );
 			}
 
 			return null;
