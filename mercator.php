@@ -85,7 +85,7 @@ function startup() {
 	}
 
 	// Ensure cache is shared
-	wp_cache_add_global_groups( array( 'domain_mapping' ) );
+	wp_cache_add_global_groups( array( 'domain_mapping', 'network_mapping' ) );
 
 	// Actually hook in!
 	add_filter( 'pre_get_site_by_path', __NAMESPACE__ . '\\check_domain_mapping', 10, 2 );
