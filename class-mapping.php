@@ -367,7 +367,7 @@ class Mapping {
 		}
 		if ( ! empty( $existing ) ) {
 			// Domain exists already...
-			if ( $site !== $mapping->get_site_id() ) {
+			if ( $site !== $existing->get_site_id() ) {
 				// ...and points to another site
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
@@ -390,7 +390,7 @@ class Mapping {
 			// Check that the table exists...
 			if ( check_table() === 'created' ) {
 				// Table created, try again
-				return static::create( $site, $domain );
+				return static::create( $site, $domain, $active );
 			}
 
 			// Other error. We suppressed errors before, so we need to make sure

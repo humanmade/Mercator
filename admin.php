@@ -88,11 +88,12 @@ function maybe_output_site_tab() {
  * @param array $messages Messages to display
  */
 function output_page_header( $id, $messages = array() ) {
+	global $title, $parent_file, $submenu_file, $pagenow;
+
 	$site_url_no_http = preg_replace( '#^http(s)?://#', '', get_blogaddress_by_id( $id ) );
 	$title_site_url_linked = sprintf( __('Aliases: <a href="%1$s">%2$s</a>'), get_blogaddress_by_id( $id ), $site_url_no_http );
 
 	// Load the page header
-	global $title, $parent_file, $submenu_file;
 	$title = sprintf( __( 'Aliases: %s', 'mercator' ), $site_url_no_http );
 	$parent_file = 'sites.php';
 	$submenu_file = 'sites.php';
@@ -154,6 +155,8 @@ function output_page_footer() {
  * @param string $action Action to perform
  */
 function handle_list_page_submit( $id, $action ) {
+	global $parent_file;
+
 	check_admin_referer( 'mercator-aliases-bulk-' . $id );
 
 	$sendback = remove_query_arg( array( 'did_action', 'mappings', '_wpnonce' ), wp_get_referer() );
