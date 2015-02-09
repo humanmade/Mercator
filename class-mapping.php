@@ -367,7 +367,7 @@ class Mapping {
 		}
 		if ( ! empty( $existing ) ) {
 			// Domain exists already...
-			if ( $site !== $mapping->get_site_id() ) {
+			if ( isset($mapping) && $site !== $mapping->get_site_id() ) {
 				// ...and points to another site
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
@@ -377,7 +377,7 @@ class Mapping {
 		}
 
 		// Create the mapping!
-		$prev_errors = $GLOBALS['EZSQL_ERROR'];
+		$prev_errors = isset($GLOBALS['EZSQL_ERROR']) ? $GLOBALS['EZSQL_ERROR'] : array();
 		$suppress = $wpdb->suppress_errors( true );
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
