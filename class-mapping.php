@@ -367,7 +367,7 @@ class Mapping {
 		}
 		if ( ! empty( $existing ) ) {
 			// Domain exists already...
-			if ( $site !== $mapping->get_site_id() ) {
+			if ( $site !== $existing->get_site_id() ) {
 				// ...and points to another site
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
