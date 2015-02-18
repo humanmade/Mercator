@@ -48,6 +48,7 @@ function run_preflight() {
 function bootstrap() {
 	add_filter( 'pre_get_site_by_path',    __NAMESPACE__ . '\\check_mappings_for_site',    20, 4 );
 	add_filter( 'pre_get_network_by_path', __NAMESPACE__ . '\\check_mappings_for_network', 10, 2 );
+	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\register_mapped_filters', -10 );
 }
 
 /**
@@ -88,6 +89,7 @@ function check_mappings_for_site( $site, $domain, $path, $path_segments ) {
 	$domains[] = array_shift( $host_segments );
 
 	$mapping = Network_Mapping::get_by_domain( $domains );
+
 	if ( empty( $mapping ) || is_wp_error( $mapping ) ) {
 		return $site;
 	}
@@ -105,7 +107,8 @@ function check_mappings_for_site( $site, $domain, $path, $path_segments ) {
 
 	// We found a network, now check for the site. Replace mapped domain with
 	// network's original to find.
-	$subdomain = substr( $domain, 0, -strlen( $mapped_network->domain ) );
+	$subdomain = substr( $domain, 0, -strlen( $mapping->get_domain() ) );
+
 	return get_site_by_path( $subdomain . $mapped_network->domain, $path, $path_segments );
 }
 
@@ -154,4 +157,68 @@ function check_mappings_for_network( $network, $domain ) {
 	// do not rely on this constant in new code.
 	defined( 'DOMAIN_MAPPING' ) or define( 'DOMAIN_MAPPING', 1 );
 	return $mapped_network;
+}
+
+/**
+ * Register filters for URLs, if we've mapped
+ */
+function register_mapped_filters() {
+	$current_site = $GLOBALS['current_blog'];
+	$real_domain = $current_site->domain;
+	$domain = $_SERVER['HTTP_HOST'];
+
+	if ( $domain === $real_domain ) {
+		// Domain hasn't been mapped
+		return;
+	}
+
+	// Grab both WWW and no-WWW
+	if ( strpos( $domain, 'www.' ) === 0 ) {
+		$www = $domain;
+		$nowww = substr( $domain, 4 );
+	}
+	else {
+		$nowww = $domain;
+		$www = 'www.' . $domain;
+	}
+
+	$mapping = Network_Mapping::get_by_domain( array( $www, $nowww ) );
+
+	if ( empty( $mapping ) || is_wp_error( $mapping ) ) {
+		return;
+	}
+
+	$GLOBALS['mercator_current_network_mapping'] = $mapping;
+
+	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -11, 4 );
+	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -11, 4 );
+}
+
+/**
+ * Mangle the home URL to give our primary domain
+ *
+ * @param string $url The complete home URL including scheme and path.
+ * @param string $path Path relative to the home URL. Blank string if no path is specified.
+ * @param string|null $orig_scheme Scheme to give the home URL context. Accepts 'http', 'https', 'relative' or null.
+ * @param int|null $site_id Blog ID, or null for the current blog.
+ * @return string Mangled URL
+ */
+function mangle_url( $url, $path, $orig_scheme, $site_id ) {
+	if ( empty( $site_id ) ) {
+		$site_id = get_current_blog_id();
+	}
+
+	$current_mapping = $GLOBALS['mercator_current_network_mapping'];
+	$main_site = \Mercator\SSO\get_main_site( $current_mapping->get_network_id() );
+
+	if ( empty( $current_mapping ) || $site_id !== $main_site ) {
+		return $url;
+	}
+
+	// Replace the domain
+	$domain = parse_url( $url, PHP_URL_HOST );
+	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
+	$mangled = preg_replace( $regex, '\1' . $current_mapping->get_domain(), $url );
+
+	return $mangled;
 }
