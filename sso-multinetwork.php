@@ -78,6 +78,7 @@ function bootstrap() {
 	add_filter( 'mercator.sso.main_domain_network',   __NAMESPACE__ . '\\get_main_network' );
 	add_filter( 'mercator.sso.is_main_domain',        __NAMESPACE__ . '\\correct_for_subdomain_networks', 10, 3 );
 	add_filter( 'mercator.sso.main_site_for_actions', __NAMESPACE__ . '\\set_main_site_for_actions' );
+	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\initialize_cookie_domain', 11 );
 }
 
 /**
@@ -168,4 +169,23 @@ function set_main_site_for_actions( $site_id ) {
 	$main_network = get_main_network();
 
 	return SSO\get_main_site( $main_network );
+}
+
+/**
+ * Ensure COOKIE_DOMAIN is always set to the current domain
+ */
+function initialize_cookie_domain() {
+	if ( empty( $GLOBALS['mercator_current_network_mapping'] ) || defined( 'COOKIE_DOMAIN' ) ) {
+		return;
+	}
+
+	// Do the ms-settings dance, again.
+	$current_mapping = $GLOBALS['mercator_current_network_mapping'];
+
+	$cookie_domain = $current_mapping->get_domain();
+	if ( substr( $cookie_domain, 0, 4 ) === 'www.' ) {
+		$cookie_domain = substr( $cookie_domain, 4 );
+	}
+
+	define( 'COOKIE_DOMAIN', $cookie_domain );
 }
