@@ -375,6 +375,31 @@ class Network_Mapping {
 	}
 
 	/**
+	 * Get mapping by domain, but filter to ensure only active mapped domains are returned
+	 *
+	 * @param string|array $domains Domain(s) to match against
+	 * @return Mapping|null Mapping on success, or null if no mapping found
+	 */
+	static function get_active_by_domain( $domains ) {
+		$mapped = array();
+
+		foreach ( $domains as $domain ) {
+			$single_mapped = self::get_by_domain( array( $domain ) );
+
+			if ( $single_mapped && ! is_wp_error( $single_mapped ) && $single_mapped->is_active() ) {
+				$mapped[] = $single_mapped;
+			}
+		}
+
+		// Grab the longest domain we can
+		usort( $mapped, function( $a, $b ) {
+			return strlen( $a->get_domain() ) - strlen( $b->get_domain() );
+		} );
+
+		return array_pop( $mapped );
+	}
+
+	/**
 	 * Compare mapping rows by domain length
 	 *
 	 * Comparison callback for `usort`, matches result format of `strcmp`
