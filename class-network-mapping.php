@@ -380,7 +380,7 @@ class Network_Mapping {
 	 * @param string|array $domains Domain(s) to match against
 	 * @return Mapping|null Mapping on success, or null if no mapping found
 	 */
-	static function get_active_by_domain( $domains ) {
+	public static function get_active_by_domain( $domains ) {
 		$mapped = array();
 
 		foreach ( $domains as $domain ) {

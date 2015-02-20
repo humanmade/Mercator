@@ -182,40 +182,23 @@ function mangle_url( $url, $path, $orig_scheme, $site_id ) {
  * i.e. a given url of site.network.com should return both site.network.com and network.com
  *
  * @param $domain
- * @param null $honor_www whether or not we should include www and non variants of the domains
  * @return array
  */
-function get_possible_mapped_domains( $domain, $honor_www = null ) {
+function get_possible_mapped_domains( $domain ) {
 
-	if ( $honor_www === null ) {
-		/**
-		 * Filter whether or not we should honor www
-		 *
-		 * By default we ignore use of www. vs no www
-		 *
-		 * @param bool - whether or not to honor www
-		 * @param string $domain Domain we're checking against
-		 */
-		$honor_www = apply_filters( 'mercator.multinetwork.mapping_honor_www', false, $domain );
+	$no_www = ( strpos( $domain, 'www.' ) === 0 ) ? substr( $domain, 4 ) : $domain;
+
+	// Explode domain on tld and return an array element for each explode point
+	// Ensures subdomains of a mapped network are matched
+	$domains   = explode_domain( $no_www );
+	$additions = array();
+
+	// Also look for www variant of each possible domain
+	foreach ( $domains as $current ) {
+		$additions[] = 'www.' . $current ;
 	}
 
-	//Explode domain on tld and return an array element for each explode point
-	//Ensures subdomains of a mapped network are matched
-	$domains = explode_domain( $domain );
-
-	if ( ! $honor_www ) {
-
-		$additions = array();
-		$has_www   = ( strpos( $domain, 'www.' ) === 0 );
-
-		//Also look for www variant of each possible domain
-		foreach ( $domains as $current ) {
-
-			$additions[] = $has_www ? substr( $current, 4 ) : 'www.' . $current ;
-		}
-
-		$domains = array_merge( $domains, $additions );
-	}
+	$domains = array_merge( $domains, $additions );
 
 	return $domains;
 }
@@ -225,26 +208,24 @@ function get_possible_mapped_domains( $domain, $honor_www = null ) {
  *
  * site.network.com should return site.network.com and network.com
  *
- * @param $domain
- * @param null $segments
- * @return array
+ * @param $domain - A url to explode, i.e. site.example.com
+ * @param int $segments - Number of segments to explode and return
+ * @return array - Exploded urls
  */
-function explode_domain( $domain, $segments = null ) {
+function explode_domain( $domain, $segments = 2 ) {
 
-	if ( $segments === null ) {
-		/**
-		 * Filter the number of segments to consider in the domain.
-		 *
-		 * The requested domain is split into dot-delimited parts, then we check
-		 * against these. By default, this is set to two segments, meaning that we
-		 * will check the specified domain and one level deeper (e.g. one-level
-		 * subdomain; "a.b.c" will be checked against "a.b.c" and "b.c").
-		 *
-		 * @param int $segments Number of segments to check
-		 * @param string $domain Domain we're checking against
-		 */
-		$segments = apply_filters( 'mercator.multinetwork.host_parts_segments_count', 2, $domain );
-	}
+	/**
+	 * Filter the number of segments to consider in the domain.
+	 *
+	 * The requested domain is split into dot-delimited parts, then we check
+	 * against these. By default, this is set to two segments, meaning that we
+	 * will check the specified domain and one level deeper (e.g. one-level
+	 * subdomain; "a.b.c" will be checked against "a.b.c" and "b.c").
+	 *
+	 * @param int $segments Number of segments to check
+	 * @param string $domain Domain we're checking against
+	 */
+	$segments = apply_filters( 'mercator.multinetwork.host_parts_segments_count', $segments, $domain );
 
 	$host_segments = explode( '.', trim( $domain, '.' ), (int) $segments );
 
