@@ -184,7 +184,7 @@ class Network_Mapping {
 
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_network_id(), 'network_mapping' );
-		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'network_mapping' );
+		wp_cache_set( 'domain:' . $fields['meta_key'], $this->data, 'network_mapping' );
 
 		return true;
 	}
@@ -206,7 +206,7 @@ class Network_Mapping {
 
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_network_id(), 'network_mapping' );
-		wp_cache_delete( 'domain:' . $this->get_domain(), 'network_mapping' );
+		wp_cache_delete( 'domain:' . static::key_for_domain( $this->get_domain() ), 'network_mapping' );
 
 		return true;
 	}
@@ -482,7 +482,7 @@ class Network_Mapping {
 
 		// Ensure the cache is flushed
 		wp_cache_delete( 'id:' . $network, 'network_mapping' );
-		wp_cache_delete( 'domain:' . $domain, 'network_mapping' );
+		wp_cache_delete( 'domain:' . $key, 'network_mapping' );
 
 		return static::get( $wpdb->insert_id );
 	}
