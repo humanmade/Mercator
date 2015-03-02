@@ -176,11 +176,15 @@ function mangle_url( $url, $path, $orig_scheme, $site_id ) {
 	// Replace the domain
 	$domain = parse_url( $url, PHP_URL_HOST );
 	$regex = '#(://|\.)' . preg_quote( $mapped_network->domain, '#' ) . '$#i';
-	$mapped_domain = preg_replace( $regex, '\1' . $current_mapping->get_domain(), $domain );
+	$mapped_domain = $current_mapping->get_domain();
+	if ( substr( $mapped_domain, 0, 4 ) === 'www.' ) {
+		$mapped_domain = substr( $mapped_domain, 4 );
+	}
+	$mangled_domain = preg_replace( $regex, '\1' . , $domain );
 
 	// Then correct the URL
 	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
-	$mangled = preg_replace( $regex, '\1' . $mapped_domain, $url );
+	$mangled = preg_replace( $regex, '\1' . $mangled_domain, $url );
 
 	return $mangled;
 }
