@@ -180,7 +180,7 @@ function mangle_url( $url, $path, $orig_scheme, $site_id ) {
 	if ( substr( $mapped_domain, 0, 4 ) === 'www.' ) {
 		$mapped_domain = substr( $mapped_domain, 4 );
 	}
-	$mangled_domain = preg_replace( $regex, '\1' . , $domain );
+	$mangled_domain = preg_replace( $regex, '\1' . $mapped_domain, $domain );
 
 	// Then correct the URL
 	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
