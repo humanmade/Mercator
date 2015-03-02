@@ -80,7 +80,11 @@ function check_mappings_for_site( $site, $domain, $path, $path_segments ) {
 
 	// We found a network, now check for the site. Replace mapped domain with
 	// network's original to find.
-	$subdomain = substr( $domain, 0, -strlen( $mapping->get_domain() ) );
+	$mapped_domain = $mapping->get_domain();
+	if ( substr( $mapped_domain, 0, 4 ) === 'www.' ) {
+		$mapped_domain = substr( $mapped_domain, 4 );
+	}
+	$subdomain = substr( $domain, 0, -strlen( $mapped_domain ) );
 
 	return get_site_by_path( $subdomain . $mapped_network->domain, $path, $path_segments );
 }
