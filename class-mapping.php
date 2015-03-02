@@ -377,7 +377,7 @@ class Mapping {
 		}
 
 		// Create the mapping!
-		$prev_errors = $GLOBALS['EZSQL_ERROR'];
+		$prev_errors = ! empty( $GLOBALS['EZSQL_ERROR'] ) ? $GLOBALS['EZSQL_ERROR'] : array();
 		$suppress = $wpdb->suppress_errors( true );
 		$result = $wpdb->insert(
 			$wpdb->dmtable,

@@ -64,38 +64,11 @@ function check_mappings_for_site( $site, $domain, $path, $path_segments ) {
 		return $site;
 	}
 
-	/**
-	 * Filter the number of segments to consider in the domain.
-	 *
-	 * The requested domain is split into dot-delimited parts, then we check
-	 * against these. By default, this is set to two segments, meaning that we
-	 * will check the specified domain and one level deeper (e.g. one-level
-	 * subdomain; "a.b.c" will be checked against "a.b.c" and "b.c"). 
-	 *
-	 * @param int $segments Number of segments to check
-	 * @param string $domain Domain we're checking against
-	 */
-	$segments = apply_filters( 'mercator.multinetwork.host_parts_segments_count', 2, $domain );
-	$host_segments = explode( '.', trim( $domain, '.' ), $segments );
+	$domains = get_possible_mapped_domains( $domain );
 
-	// Determine what domains to search for. Grab as many segments of the host
-	// as asked for.
-	$domains = array();
-	while ( count( $host_segments ) > 1 ) {
-		$domains[] = array_shift( $host_segments ) . '.' . implode( '.', $host_segments );
-	}
-
-	// Add the last part, avoiding trailing dot
-	$domains[] = array_shift( $host_segments );
-
-	$mapping = Network_Mapping::get_by_domain( $domains );
+	$mapping = Network_Mapping::get_active_by_domain( $domains );
 
 	if ( empty( $mapping ) || is_wp_error( $mapping ) ) {
-		return $site;
-	}
-
-	// Ignore non-active domains
-	if ( ! $mapping->is_active() ) {
 		return $site;
 	}
 
@@ -125,30 +98,17 @@ function check_mappings_for_network( $network, $domain ) {
 		return $network;
 	}
 
-	global $wpdb;
+	$domains = get_possible_mapped_domains( $domain );
 
-	// Grab both WWW and no-WWW
-	if ( strpos( $domain, 'www.' ) === 0 ) {
-		$www = $domain;
-		$nowww = substr( $domain, 4 );
-	}
-	else {
-		$nowww = $domain;
-		$www = 'www.' . $domain;
-	}
+	$mapping = Network_Mapping::get_active_by_domain( $domains );
 
-	$mapping = Network_Mapping::get_by_domain( array( $www, $nowww ) );
 	if ( empty( $mapping ) || is_wp_error( $mapping ) ) {
-		return $network;
-	}
-
-	// Ignore non-active domains
-	if ( ! $mapping->is_active() ) {
 		return $network;
 	}
 
 	// Fetch the actual data for the site
 	$mapped_network = $mapping->get_network();
+
 	if ( empty( $mapped_network ) ) {
 		return $network;
 	}
@@ -172,17 +132,9 @@ function register_mapped_filters() {
 		return;
 	}
 
-	// Grab both WWW and no-WWW
-	if ( strpos( $domain, 'www.' ) === 0 ) {
-		$www = $domain;
-		$nowww = substr( $domain, 4 );
-	}
-	else {
-		$nowww = $domain;
-		$www = 'www.' . $domain;
-	}
+	$domains = get_possible_mapped_domains( $domain );
 
-	$mapping = Network_Mapping::get_by_domain( array( $www, $nowww ) );
+	$mapping = Network_Mapping::get_active_by_domain( $domains );
 
 	if ( empty( $mapping ) || is_wp_error( $mapping ) ) {
 		return;
@@ -221,4 +173,72 @@ function mangle_url( $url, $path, $orig_scheme, $site_id ) {
 	$mangled = preg_replace( $regex, '\1' . $current_mapping->get_domain(), $url );
 
 	return $mangled;
+}
+
+/**
+ * Get all possible mappings which may be in use and apply to the supplied domain
+ *
+ * This will return an array of domains which might have been mapped but also apply to the current domain
+ * i.e. a given url of site.network.com should return both site.network.com and network.com
+ *
+ * @param $domain
+ * @return array
+ */
+function get_possible_mapped_domains( $domain ) {
+
+	$no_www = ( strpos( $domain, 'www.' ) === 0 ) ? substr( $domain, 4 ) : $domain;
+
+	// Explode domain on tld and return an array element for each explode point
+	// Ensures subdomains of a mapped network are matched
+	$domains   = explode_domain( $no_www );
+	$additions = array();
+
+	// Also look for www variant of each possible domain
+	foreach ( $domains as $current ) {
+		$additions[] = 'www.' . $current ;
+	}
+
+	$domains = array_merge( $domains, $additions );
+
+	return $domains;
+}
+
+/**
+ * Explode a given domain into an array of domains with decreasing number of segments
+ *
+ * site.network.com should return site.network.com and network.com
+ *
+ * @param $domain - A url to explode, i.e. site.example.com
+ * @param int $segments - Number of segments to explode and return
+ * @return array - Exploded urls
+ */
+function explode_domain( $domain, $segments = 2 ) {
+
+	/**
+	 * Filter the number of segments to consider in the domain.
+	 *
+	 * The requested domain is split into dot-delimited parts, then we check
+	 * against these. By default, this is set to two segments, meaning that we
+	 * will check the specified domain and one level deeper (e.g. one-level
+	 * subdomain; "a.b.c" will be checked against "a.b.c" and "b.c").
+	 *
+	 * @param int $segments Number of segments to check
+	 * @param string $domain Domain we're checking against
+	 */
+	$segments = apply_filters( 'mercator.multinetwork.host_parts_segments_count', $segments, $domain );
+
+	$host_segments = explode( '.', trim( $domain, '.' ), (int) $segments );
+
+	// Determine what domains to search for. Grab as many segments of the host
+	// as asked for.
+	$domains = array();
+
+	while ( count( $host_segments ) > 1 ) {
+		$domains[] = array_shift( $host_segments ) . '.' . implode( '.', $host_segments );
+	}
+
+	// Add the last part, avoiding trailing dot
+	$domains[] = array_shift( $host_segments );
+
+	return $domains;
 }
