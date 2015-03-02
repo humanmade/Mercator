@@ -175,8 +175,8 @@ function mangle_url( $url, $path, $orig_scheme, $site_id ) {
 
 	// Replace the domain
 	$domain = parse_url( $url, PHP_URL_HOST );
-	$regex = '#\.' . preg_quote( $mapped_network->domain, '#' ) . '$#i';
-	$mapped_domain = preg_replace( $regex, '.' . $current_mapping->get_domain(), $domain );
+	$regex = '#(://|\.)' . preg_quote( $mapped_network->domain, '#' ) . '$#i';
+	$mapped_domain = preg_replace( $regex, '\1' . $current_mapping->get_domain(), $domain );
 
 	// Then correct the URL
 	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
