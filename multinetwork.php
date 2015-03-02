@@ -165,16 +165,22 @@ function mangle_url( $url, $path, $orig_scheme, $site_id ) {
 	}
 
 	$current_mapping = $GLOBALS['mercator_current_network_mapping'];
-	$main_site = \Mercator\SSO\get_main_site( $current_mapping->get_network_id() );
+	$current_network = get_current_site();
 
-	if ( empty( $current_mapping ) || $site_id !== $main_site ) {
+	if ( empty( $current_mapping ) || (int) $current_network->id !== (int) $current_mapping->get_network_id() ) {
 		return $url;
 	}
 
+	$mapped_network = $current_mapping->get_network();
+
 	// Replace the domain
 	$domain = parse_url( $url, PHP_URL_HOST );
+	$regex = '#\.' . preg_quote( $mapped_network->domain, '#' ) . '$#i';
+	$mapped_domain = preg_replace( $regex, '.' . $current_mapping->get_domain(), $domain );
+
+	// Then correct the URL
 	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
-	$mangled = preg_replace( $regex, '\1' . $current_mapping->get_domain(), $url );
+	$mangled = preg_replace( $regex, '\1' . $mapped_domain, $url );
 
 	return $mangled;
 }
