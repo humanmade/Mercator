@@ -14,8 +14,9 @@ also requires PHP 5.3+ due to the use of namespaced code.
 ## Installation
 Mercator must be loaded during sunrise.
 
-We recommend dropping Mercator's directory into your `mu-plugins` directory,
-then creating a `wp-content/sunrise.php` file with the following:
+We recommend dropping Mercator's directory into your `mu-plugins` directory. You may need to rename the folder from `Mercator-master` to `mercator`. 
+
+Then create a `wp-content/sunrise.php` file with the following:
 
 ```php
 <?php
