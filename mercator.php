@@ -7,6 +7,18 @@
  * @package Mercator
  */
 
+/*
+Plugin Name: Mercator
+Plugin URI: https://github.com/humanmade/Mercator
+Description: WordPress multisite domain mapping for the modern era.
+Version: 3.1.1
+Author: Human Made Limited
+Author URI: http://hmn.md/
+License: GPL-2.0+
+Text Domain: mercator
+Network: true
+*/
+
 namespace Mercator;
 
 use WP_CLI;
