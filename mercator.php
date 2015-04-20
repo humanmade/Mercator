@@ -241,6 +241,10 @@ function load_admin() {
 function clear_mappings_on_delete( $site_id ) {
 	$mappings = Mapping::get_by_site( $site_id );
 
+	if ( empty( $mappings ) ) {
+		return;
+	}
+
 	foreach ( $mappings as $mapping ) {
 		$error = $mapping->delete();
 
