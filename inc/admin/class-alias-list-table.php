@@ -43,7 +43,7 @@ class Alias_List_Table extends WP_List_Table {
 		return array(
 			'cb'     => '<input type="checkbox" />',
 			'domain' => _x( 'Domain', 'mercator' ),
-			'active' => _x( 'Active', 'mercator' ),
+			'active' => _x( 'Status', 'mercator' ),
 		);
 	}
 
@@ -237,8 +237,8 @@ class Alias_List_Table extends WP_List_Table {
 	protected function column_active( $mapping ) {
 		$active = $mapping->is_active();
 		if ( $active ) {
-			return esc_html__( 'Active', 'mercator' );
+			return '<span style="color:green;font-weight:bold;">' . esc_html__( 'Active', 'mercator' ) . '</span>';
 		}
-		return esc_html__( 'Inactive', 'mercator');
+		return '<span style="color:red;font-weight:bold;">' . esc_html__( 'Inactive', 'mercator' ) . '</span>';
 	}
 }

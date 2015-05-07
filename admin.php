@@ -387,7 +387,7 @@ function handle_edit_page_submit( $id, $mapping ) {
 	}
 	if ( empty( $mapping ) ) {
 		// Create the actual mapping
-		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );	
+		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );
 	}
 	else {
 		// Update our existing
@@ -477,7 +477,7 @@ function output_edit_page() {
 			</tr>
 			<tr>
 				<th scope="row">
-					<?php echo esc_html_x( 'Active', 'field name', 'mercator' ) ?>
+					<?php echo esc_html_x( 'Status', 'field name', 'mercator' ) ?>
 				</th>
 				<td>
 					<label>
