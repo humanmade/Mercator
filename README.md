@@ -40,6 +40,12 @@ Additionally, in order for `sunrise.php` to be loaded, you must add the followin
 define('SUNRISE', true);
 ```
 
+Aliases are created in the Network Admin > Sites > Edit Site screen.
+
+DNS for mapped domains must be configured for the domain to point to the WordPress
+installation, as well as configuring the web server to route requests for the
+domain to the WordPress application.
+
 ## Upgrading from WPMU Domain Mapping
 This plugin is a complete replacement for WPMU Domain Mapping. The database
 structure is fully compatible.
