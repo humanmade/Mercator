@@ -11,10 +11,17 @@ Stop using outdated practices, and start making sense.
 Mercator requires WordPress 3.9 or newer for the new sunrise processes. Mercator
 also requires PHP 5.3+ due to the use of namespaced code.
 
+## What is Domain Mapping?
+When setting up a Multisite install, the network is configured to create sites either as subdomains of the root site (e.g. `subsite.network.com`) or subfolders (e.g. `network.com/subsite`).
+
+Domain Mapping is the process of mapping any arbitrary domain (called an alias) to load a site. If an alias of `arbitrarydomain.com` is set for the site `network.com/subsite`, the site and wp-admin interface can be accessed over either the alias or the original URL.
+
+Internally, Mercator looks at a request's domain and informs WordPress [what set of tables to use](https://www.youtube.com/watch?t=249&v=3evwb1SiaBY#t=5m42s). User authentication cookies are set for all domains in the network, so a user logs in on one site and is authenticated across all.
+
 ## Installation
 Mercator must be loaded during sunrise.
 
-We recommend dropping Mercator's directory into your `mu-plugins` directory. You may need to rename the folder from `Mercator-master` to `mercator`. 
+We recommend dropping Mercator's directory into your `mu-plugins` directory. You may need to rename the folder from `Mercator-master` to `mercator`.
 
 Then create a `wp-content/sunrise.php` file with the following:
 
@@ -32,6 +39,12 @@ Additionally, in order for `sunrise.php` to be loaded, you must add the followin
 ```
 define('SUNRISE', true);
 ```
+
+Aliases are created in the Network Admin > Sites > Edit Site screen.
+
+DNS for mapped domains must be configured for the domain to point to the WordPress
+installation, as well as configuring the web server to route requests for the
+domain to the WordPress application.
 
 ## Upgrading from WPMU Domain Mapping
 This plugin is a complete replacement for WPMU Domain Mapping. The database
