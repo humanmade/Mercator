@@ -81,7 +81,7 @@ Mapping.
 Mercator is licensed under the GPLv2 or later.
 
 ## Credits
-Created by Human Made for high volume and large-scale sites, such as [Happytables](http://happytables.com/). We run Cavalcade on sites with millions of monthly page views, and thousands of sites.
+Created by Human Made for high volume and large-scale sites, such as [Happytables](http://happytables.com/). We run Mercator on sites with millions of monthly page views, and thousands of sites.
 
 Written and maintained by [Ryan McCue](https://github.com/rmccue). Thanks to all our [contributors](https://github.com/humanmade/Mercator/graphs/contributors).
 
