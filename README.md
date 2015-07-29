@@ -1,5 +1,27 @@
-# Mercator
-*WordPress multisite domain mapping for the modern era.*
+<table width="100%">
+	<tr>
+		<td align="left" width="70">
+			<strong>Mercator</strong><br />
+			WordPress multisite domain mapping for the modern era.
+		</td>
+		<td align="right" width="20%">
+			<a href="https://travis-ci.org/humanmade/Mercator">
+				<img src="https://travis-ci.org/humanmade/Mercator.svg?branch=master" alt="Build status">
+			</a>
+			<a href="http://codecov.io/github/humanmade/Mercator?branch=master">
+				<img src="http://codecov.io/github/humanmade/Mercator/coverage.svg?branch=master" alt="Coverage via codecov.io" />
+			</a>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			A <strong><a href="https://hmn.md/">Human Made</a></strong> project. Maintained by @rmccue.
+		</td>
+		<td align="center">
+			<img src="https://hmn.md/content/themes/hmnmd/assets/images/hm-logo.svg" width="100" />
+		</td>
+	</tr>
+</table>
 
 Mercator is a domain mapping plugin for the New World. Using new features
 included with WordPress 3.9 and later, Mercator builds on the new multisite
@@ -59,14 +81,15 @@ Mapping.
 Mercator is licensed under the GPLv2 or later.
 
 ## Credits
-Mercator is written and maintained by @rmccue.
+Created by Human Made for high volume and large-scale sites, such as [Happytables](http://happytables.com/). We run Cavalcade on sites with millions of monthly page views, and thousands of sites.
 
-Mercator builds on concepts from [WPMU Domain Mapping][], written by Donncha
-O'Caoimh, Ron Rennick, and contributors.
+Written and maintained by [Ryan McCue](https://github.com/rmccue). Thanks to all our [contributors](https://github.com/humanmade/Mercator/graphs/contributors).
 
-Mercator relies on WordPress core, building on core functionality added in
-[WP27003][]. Thanks to all involved in the overhaul, including Andrew Nacin and
-Jeremy Felt.
+Mercator builds on concepts from [WPMU Domain Mapping][], written by Donncha O'Caoimh, Ron Rennick, and contributors.
+
+Mercator relies on WordPress core, building on core functionality added in [WP27003][]. Thanks to all involved in the overhaul, including Andrew Nacin and Jeremy Felt.
 
 [WPMU Domain Mapping]: http://wordpress.org/plugins/wordpress-mu-domain-mapping/
 [WP27003]: https://core.trac.wordpress.org/ticket/27003
+
+Interested in joining in on the fun? [Join us, and become human!](https://hmn.md/is/hiring/)
