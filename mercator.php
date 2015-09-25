@@ -290,6 +290,12 @@ function register_mapped_filters() {
 	$GLOBALS['mercator_current_mapping'] = $mapping;
 	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+
+	// If on network site, also filter network urls
+	if ( is_main_site() ) {
+		add_filter( 'network_site_url', __NAMESPACE__ . '\\mangle_url', -10, 3 );
+		add_filter( 'network_home_url', __NAMESPACE__ . '\\mangle_url', -10, 3 );
+	}
 }
 
 /**
@@ -301,7 +307,7 @@ function register_mapped_filters() {
  * @param int|null $site_id Blog ID, or null for the current blog.
  * @return string Mangled URL
  */
-function mangle_url( $url, $path, $orig_scheme, $site_id ) {
+function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
 		$site_id = get_current_blog_id();
 	}
