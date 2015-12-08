@@ -290,6 +290,7 @@ function register_mapped_filters() {
 	$GLOBALS['mercator_current_mapping'] = $mapping;
 	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+	add_filter( 'content_url', __NAMESPACE__ . '\\mangle_content_url', -10, 2 );
 
 	// If on network site, also filter network urls
 	if ( is_main_site() ) {
