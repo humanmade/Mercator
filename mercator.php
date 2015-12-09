@@ -381,8 +381,9 @@ function maybe_redirect_to_primary_domain(){
 	// If a primary domain is found, and we are not on the primary domain, safely 301 redirect to it
 	if( $primary_domain !== $_SERVER['HTTP_HOST'] ) {
 		//setup redirected URL to follow the full request URI for proper SEO
-		$redirect_url = get_primary_domain( get_current_blog_id() ) . $_SERVER['REQUEST_URI'] . '?redirected_from=' . $_SERVER['HTTP_HOST'];
-		wp_safe_redirect( $redirect_url , 301);
+		$redirect_url = get_primary_domain( get_current_blog_id() ) . $_SERVER['REQUEST_URI'];
+		//echo $redirect_url; exit;
+		wp_redirect( $redirect_url , 301);
 		exit;
 	}
 }
