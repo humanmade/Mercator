@@ -290,8 +290,8 @@ function register_mapped_filters() {
 	$GLOBALS['mercator_current_mapping'] = $mapping;
 	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
-	add_filter( 'content_url', __NAMESPACE__ . '\\mangle_content_url', -10, 2 );
-	add_filter( 'lostpassword_url', __NAMESPACE__ . '\\mangle_content_url', -10, 2 );
+	add_filter( 'content_url', __NAMESPACE__ . '\\mangle_url', -10, 2 );
+	add_filter( 'lostpassword_url', __NAMESPACE__ . '\\mangle_url', -10, 2 );
 
 	// If on network site, also filter network urls
 	if ( is_main_site() ) {
@@ -309,12 +309,13 @@ function register_mapped_filters() {
  * @param int|null $site_id Blog ID, or null for the current blog.
  * @return string Mangled URL
  */
-function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
+function mangle_url( $url, $path, $orig_scheme = null, $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
 		$site_id = get_current_blog_id();
 	}
 
 	$current_mapping = $GLOBALS['mercator_current_mapping'];
+	// If mapping isn't valid for this site, return the original URL
 	if ( empty( $current_mapping ) || $site_id !== (int) $current_mapping->get_site_id() ) {
 		return $url;
 	}
@@ -324,31 +325,5 @@ function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
 	$mangled = preg_replace( $regex, '${1}' . $current_mapping->get_domain(), $url );
 
-	return $mangled;
-}
-
-/**
- * Mangle the content URL to give our mapped domain
- *
- * @param string $url The complete home URL including scheme and path.
- * @param string $path Path relative to the home URL. Blank string if no path is specified.
- * @return string Mangled Content URL
- */
-function mangle_content_url( $url, $path) {
-	//get site ID for use with getting mapped domain name
-	$site_id = get_current_blog_id();
-	//pull in site aliases
-	$current_mapping = $GLOBALS['mercator_current_mapping'];
-	//make sure the current domain is a mapped domain, else return the original url
-	if ( empty( $current_mapping ) || $site_id !== (int) $current_mapping->get_site_id() ) {
-		return $url;
-	}
-
-	// Replace the domain with mapped domain within the url
-	$domain = parse_url( $url, PHP_URL_HOST );
-	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
-	$mangled = preg_replace( $regex, '${1}' . $current_mapping->get_domain(), $url );
-	
-	//return filtered content url
 	return $mangled;
 }
