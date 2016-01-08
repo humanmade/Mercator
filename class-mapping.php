@@ -31,6 +31,10 @@ class Mapping {
 		$this->data = $data;
 	}
 
+	public function __clone() {
+		return $this->data = clone( $this->data );
+	}
+
 	/**
 	 * Get mapping ID
 	 *
@@ -151,6 +155,7 @@ class Mapping {
 			return new \WP_Error( 'mercator.mapping.update_failed' );
 		}
 
+		$old_mapping = clone( $this );
 		// Update internal state
 		foreach ( $fields as $key => $val ) {
 			$this->data->$key = $val;
@@ -159,6 +164,7 @@ class Mapping {
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
 		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'domain_mapping' );
+		do_action( 'mercator.mapping.updated', $this, $old_mapping );
 
 		return true;
 	}
@@ -181,6 +187,7 @@ class Mapping {
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
 		wp_cache_delete( 'domain:' . $this->get_domain(), 'domain_mapping' );
+		do_action( 'mercator.mapping.deleted', $this );
 
 		return true;
 	}
@@ -408,6 +415,8 @@ class Mapping {
 		wp_cache_delete( 'id:' . $site, 'domain_mapping' );
 		wp_cache_delete( 'domain:' . $domain, 'domain_mapping' );
 
-		return static::get( $wpdb->insert_id );
+		$mapping = static::get( $wpdb->insert_id );
+		do_action( 'mercator.mapping.created', $mapping );
+		return $mapping;
 	}
 }
