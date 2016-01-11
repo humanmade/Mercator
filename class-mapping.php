@@ -31,8 +31,14 @@ class Mapping {
 		$this->data = $data;
 	}
 
+	/**
+	 * Clone magic method when clone( self ) is called.
+	 *
+	 * As the internal data is stored in an object, we have to make a copy
+	 * when this object is cloned.
+	 */
 	public function __clone() {
-		return $this->data = clone( $this->data );
+		$this->data = clone( $this->data );
 	}
 
 	/**
@@ -164,6 +170,13 @@ class Mapping {
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
 		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'domain_mapping' );
+
+		/**
+		 * Fires after a mapping has been updated.
+		 *
+		 * @param Mercator\Mapping $mapping         The mapping object.
+		 * @param Mercator\Mapping $mapping         The previous mapping object.
+		 */
 		do_action( 'mercator.mapping.updated', $this, $old_mapping );
 
 		return true;
@@ -187,6 +200,12 @@ class Mapping {
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
 		wp_cache_delete( 'domain:' . $this->get_domain(), 'domain_mapping' );
+
+		/**
+		 * Fires after a mapping has been delete.
+		 *
+		 * @param Mercator\Mapping $mapping         The mapping object.
+		 */
 		do_action( 'mercator.mapping.deleted', $this );
 
 		return true;
@@ -416,6 +435,12 @@ class Mapping {
 		wp_cache_delete( 'domain:' . $domain, 'domain_mapping' );
 
 		$mapping = static::get( $wpdb->insert_id );
+
+		/**
+		 * Fires after a mapping has been created.
+		 *
+		 * @param Mercator\Mapping $mapping         The mapping object.
+		 */
 		do_action( 'mercator.mapping.created', $mapping );
 		return $mapping;
 	}
