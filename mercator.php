@@ -92,6 +92,7 @@ function startup() {
 	add_action( 'admin_init', __NAMESPACE__ . '\\load_admin', -100 );
 	add_action( 'delete_blog', __NAMESPACE__ . '\\clear_mappings_on_delete' );
 	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\register_mapped_filters', -10 );
+	add_action( 'init', __NAMESPACE__ . '\\maybe_redirect_to_primary_domain', 5 );
 
 	// Add CLI commands
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -290,6 +291,8 @@ function register_mapped_filters() {
 	$GLOBALS['mercator_current_mapping'] = $mapping;
 	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+	add_filter( 'content_url', __NAMESPACE__ . '\\mangle_url', -10, 2 );
+	add_filter( 'lostpassword_url', __NAMESPACE__ . '\\mangle_url', -10, 2 );
 
 	// If on network site, also filter network urls
 	if ( is_main_site() ) {
@@ -307,12 +310,13 @@ function register_mapped_filters() {
  * @param int|null $site_id Blog ID, or null for the current blog.
  * @return string Mangled URL
  */
-function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
+function mangle_url( $url, $path, $orig_scheme = null, $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
 		$site_id = get_current_blog_id();
 	}
 
 	$current_mapping = $GLOBALS['mercator_current_mapping'];
+	// If mapping isn't valid for this site, return the original URL
 	if ( empty( $current_mapping ) || $site_id !== (int) $current_mapping->get_site_id() ) {
 		return $url;
 	}
@@ -323,4 +327,63 @@ function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 	$mangled = preg_replace( $regex, '${1}' . $current_mapping->get_domain(), $url );
 
 	return $mangled;
+}
+
+/**
+ * Get primary domain from site_id
+ * Note that the first active alias is assumed to be primary
+ * @param $site_id
+ * @param bool|true $with_protocol
+ * @return string
+ */
+function get_primary_domain($site_id, $with_protocol = true){
+	// Add object caching to remove need to lookup primary domain multiple times
+	$primary_domain =  wp_cache_get( 'mercator_get_primary_domain_' . $site_id );
+	if ( false === $primary_domain ) {
+		// Settings primary domain to http host for easy fallback
+		$primary_domain = $_SERVER['HTTP_HOST'];
+		$mappings = Mapping::get_by_site($site_id);
+
+		// If no mapping are found, return the current domain
+		if( ! $mappings ){
+			return $primary_domain;
+		}
+
+		// Check for the first active alias and assume its primary
+		foreach ($mappings as $mapping) {
+			if ($mapping->is_active()) {
+				$primary_domain = $mapping->get_domain();
+				wp_cache_set( 'mercator_get_primary_domain', $primary_domain . $site_id );
+				break;
+			}
+		}
+	}
+
+	// Always allow protocal modifier to change primary domain url returned (do not cache)
+	if($with_protocol) {
+		if(is_ssl()) {
+			$primary_domain = 'https://'.$primary_domain;
+		} else {
+			$primary_domain = 'http://'.$primary_domain;
+		}
+	}
+
+	return $primary_domain;
+}
+
+/**
+ * Determines if an alias is set on current domain and
+ * redirects to primary alias url if needed
+ */
+function maybe_redirect_to_primary_domain(){
+	$primary_domain = get_primary_domain( get_current_blog_id(), false );
+
+	// If a primary domain is found, and we are not on the primary domain, safely 301 redirect to it
+	if( $primary_domain !== $_SERVER['HTTP_HOST'] ) {
+		//setup redirected URL to follow the full request URI for proper SEO
+		$redirect_url = get_primary_domain( get_current_blog_id() ) . $_SERVER['REQUEST_URI'];
+		//echo $redirect_url; exit;
+		wp_redirect( $redirect_url , 301);
+		exit;
+	}
 }
