@@ -1,6 +1,8 @@
 <?php
 namespace Mercator;
 
+use WP_Error;
+
 /**
  * Mapping object
  *
@@ -47,7 +49,7 @@ class Mapping {
 	 * @return int Mapping ID
 	 */
 	public function get_id() {
-		return $this->data->id;
+		return absint( $this->data->id );
 	}
 
 	/**
@@ -62,7 +64,7 @@ class Mapping {
 	/**
 	 * Get site object
 	 *
-	 * @return stdClass|boolean {@see get_blog_details}
+	 * @return \stdClass|boolean {@see get_blog_details}
 	 */
 	public function get_site() {
 		return get_blog_details( $this->site, false );
@@ -74,7 +76,7 @@ class Mapping {
 	 * @return int Site ID
 	 */
 	public function get_site_id() {
-		return $this->site;
+		return absint( $this->site );
 	}
 
 	/**
@@ -90,7 +92,7 @@ class Mapping {
 	 * Set whether the mapping is active
 	 *
 	 * @param bool $active Should the mapping be active? (True for active, false for inactive)
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_active( $active ) {
 		$data = array(
@@ -103,7 +105,7 @@ class Mapping {
 	 * Set the domain for the mapping
 	 *
 	 * @param string $domain Domain name
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_domain( $domain ) {
 		$data = array(
@@ -117,8 +119,8 @@ class Mapping {
 	 *
 	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
 	 *
-	 * @param array|stdClass $data Mapping fields (associative array or object properties)
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @param array|\stdClass $data Mapping fields (associative array or object properties)
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function update( $data ) {
 		global $wpdb;
@@ -134,7 +136,7 @@ class Mapping {
 			if ( is_wp_error( $existing ) ) {
 				return $existing;
 			}
-			if ( ! empty( $existing ) ) {
+			if ( ! empty( $existing ) && $existing->get_site_id() !== $data['site'] ) {
 				// Domain exists already and points to another site
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
@@ -174,8 +176,8 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been updated.
 		 *
-		 * @param Mercator\Mapping $mapping         The mapping object.
-		 * @param Mercator\Mapping $mapping         The previous mapping object.
+		 * @param \Mercator\Mapping $mapping         The mapping object.
+		 * @param \Mercator\Mapping $mapping         The previous mapping object.
 		 */
 		do_action( 'mercator.mapping.updated', $this, $old_mapping );
 
@@ -185,7 +187,7 @@ class Mapping {
 	/**
 	 * Delete the mapping
 	 *
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function delete() {
 		global $wpdb;
@@ -204,7 +206,7 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been delete.
 		 *
-		 * @param Mercator\Mapping $mapping         The mapping object.
+		 * @param \Mercator\Mapping $mapping         The mapping object.
 		 */
 		do_action( 'mercator.mapping.deleted', $this );
 
@@ -216,7 +218,7 @@ class Mapping {
 	 *
 	 * Allows use as a callback, such as in `array_map`
 	 *
-	 * @param stdClass $data Raw mapping data
+	 * @param \stdClass $data Raw mapping data
 	 * @return Mapping
 	 */
 	protected static function to_instance( $data ) {
@@ -226,7 +228,7 @@ class Mapping {
 	/**
 	 * Convert list of data to Mapping instances
 	 *
-	 * @param stdClass[] $data Raw mapping rows
+	 * @param \stdClass[] $data Raw mapping rows
 	 * @return Mapping[]
 	 */
 	protected static function to_instances( $data ) {
@@ -237,7 +239,7 @@ class Mapping {
 	 * Get mapping by mapping ID
 	 *
 	 * @param int|Mapping $mapping Mapping ID or instance
-	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 * @return Mapping|\WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get( $mapping ) {
 		global $wpdb;
@@ -268,7 +270,7 @@ class Mapping {
 	/**
 	 * Get mapping by site ID
 	 *
-	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
+	 * @param int|\stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get_by_site( $site ) {
@@ -439,7 +441,7 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been created.
 		 *
-		 * @param Mercator\Mapping $mapping         The mapping object.
+		 * @param \Mercator\Mapping $mapping         The mapping object.
 		 */
 		do_action( 'mercator.mapping.created', $mapping );
 		return $mapping;

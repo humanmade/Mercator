@@ -313,7 +313,7 @@ function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 	}
 
 	$current_mapping = $GLOBALS['mercator_current_mapping'];
-	if ( empty( $current_mapping ) || $site_id !== (int) $current_mapping->get_site_id() ) {
+	if ( empty( $current_mapping ) || $site_id !== $current_mapping->get_site_id() ) {
 		return $url;
 	}
 
