@@ -211,10 +211,9 @@ class Alias_List_Table extends WP_List_Table {
 
 		$edit_link = add_query_arg(
 			array(
-				'action'   => 'mercator-edit',
-				'id'       => $mapping->get_site_id(),
-				'mapping'  => $mapping->get_id(),
-				'_wpnonce' => wp_create_nonce( 'mercator-make-primary-' . $this->_args['site_id'] ),
+				'action'  => 'mercator-edit',
+				'id'      => $mapping->get_site_id(),
+				'mapping' => $mapping->get_id(),
 			),
 			network_admin_url( 'admin.php' )
 		);
