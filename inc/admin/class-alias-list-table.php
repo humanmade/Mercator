@@ -232,7 +232,7 @@ class Alias_List_Table extends WP_List_Table {
 		$delete_args = $args;
 		$delete_args['bulk_action'] = 'delete';
 		$delete_link = add_query_arg( $delete_args, network_admin_url( 'admin.php' ) );
-		
+
 		$actions['delete'] = sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'mercator' ) );
 
 		$actions = apply_filters( 'mercator_alias_actions', $actions, $mapping );
