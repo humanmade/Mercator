@@ -41,9 +41,10 @@ class Alias_List_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'cb'     => '<input type="checkbox" />',
-			'domain' => _x( 'Domain', 'mercator' ),
-			'active' => _x( 'Active', 'mercator' ),
+			'cb'      => '<input type="checkbox" />',
+			'domain'  => _x( 'Domain', 'mercator' ),
+			'active'  => _x( 'Active', 'mercator' ),
+			'primary' => _x( 'Primary', 'mercator' ),
 		);
 	}
 
@@ -210,9 +211,10 @@ class Alias_List_Table extends WP_List_Table {
 
 		$edit_link = add_query_arg(
 			array(
-				'action'  => 'mercator-edit',
-				'id'      => $mapping->get_site_id(),
-				'mapping' => $mapping->get_id(),
+				'action'   => 'mercator-edit',
+				'id'       => $mapping->get_site_id(),
+				'mapping'  => $mapping->get_id(),
+				'_wpnonce' => wp_create_nonce( 'mercator-make-primary-' . $this->_args['site_id'] ),
 			),
 			network_admin_url( 'admin.php' )
 		);
@@ -220,8 +222,20 @@ class Alias_List_Table extends WP_List_Table {
 		$actions = array(
 			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html__( 'Edit', 'mercator' ) ),
 			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
-			'delete' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'mercator' ) ),
 		);
+
+		if ( ! $mapping->is_primary() ) {
+			$primary_link = add_query_arg(
+				wp_parse_args( array(
+					'bulk_action' => 'make_primary',
+				), $args ),
+				network_admin_url( 'admin.php' )
+			);
+			$actions['make_primary'] = sprintf( '<a href="%s">%s</a>', esc_url( $primary_link ), esc_html__( 'Make primary', 'mercator' ) );
+		}
+
+		$actions['delete'] = sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'mercator' ) );
+
 		$actions = apply_filters( 'mercator_alias_actions', $actions, $mapping );
 		$action_html = $this->row_actions( $actions, false );
 
@@ -235,10 +249,22 @@ class Alias_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_active( $mapping ) {
-		$active = $mapping->is_active();
-		if ( $active ) {
+		if ( $mapping->is_active() ) {
 			return esc_html__( 'Active', 'mercator' );
 		}
-		return esc_html__( 'Inactive', 'mercator');
+		return esc_html__( 'Inactive', 'mercator' );
+	}
+
+	/**
+	 * Get cell value for the primary column
+	 *
+	 * @param Mapping $mapping Current mapping item
+	 * @return string HTML for the cell
+	 */
+	protected function column_primary( $mapping ) {
+		if ( $mapping->is_primary() ) {
+			return '❤️ <span class="screen-reader-text">' . esc_html__( 'Primary', 'mercator' ) . '</span>';
+		}
+		return '';
 	}
 }
