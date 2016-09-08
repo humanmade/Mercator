@@ -1,6 +1,8 @@
 <?php
 namespace Mercator;
 
+use WP_Error;
+
 /**
  * Mapping object
  *
@@ -47,7 +49,7 @@ class Mapping {
 	 * @return int Mapping ID
 	 */
 	public function get_id() {
-		return $this->data->id;
+		return absint( $this->data->id );
 	}
 
 	/**
@@ -60,9 +62,18 @@ class Mapping {
 	}
 
 	/**
+	 * Is the mapping the primary domain?
+	 *
+	 * @return boolean
+	 */
+	public function is_primary() {
+		return $this->data->is_primary == 1;
+	}
+
+	/**
 	 * Get site object
 	 *
-	 * @return stdClass|boolean {@see get_blog_details}
+	 * @return \stdClass|boolean {@see get_blog_details}
 	 */
 	public function get_site() {
 		return get_blog_details( $this->site, false );
@@ -74,7 +85,7 @@ class Mapping {
 	 * @return int Site ID
 	 */
 	public function get_site_id() {
-		return $this->site;
+		return absint( $this->site );
 	}
 
 	/**
@@ -90,7 +101,7 @@ class Mapping {
 	 * Set whether the mapping is active
 	 *
 	 * @param bool $active Should the mapping be active? (True for active, false for inactive)
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_active( $active ) {
 		$data = array(
@@ -100,10 +111,23 @@ class Mapping {
 	}
 
 	/**
+	 * Set whether the mapping is active
+	 *
+	 * @param bool $primary Should the mapping be primary? (True for primary, false for secondary)
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 */
+	public function set_primary( $primary ) {
+		$data = array(
+			'is_primary' => (bool) $primary,
+		);
+		return $this->update( $data );
+	}
+
+	/**
 	 * Set the domain for the mapping
 	 *
 	 * @param string $domain Domain name
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_domain( $domain ) {
 		$data = array(
@@ -117,8 +141,8 @@ class Mapping {
 	 *
 	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
 	 *
-	 * @param array|stdClass $data Mapping fields (associative array or object properties)
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @param array|\stdClass $data Mapping fields (associative array or object properties)
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function update( $data ) {
 		global $wpdb;
@@ -134,7 +158,7 @@ class Mapping {
 			if ( is_wp_error( $existing ) ) {
 				return $existing;
 			}
-			if ( ! empty( $existing ) ) {
+			if ( ! empty( $existing ) && $existing->get_site_id() !== $data['site'] ) {
 				// Domain exists already and points to another site
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
@@ -147,6 +171,25 @@ class Mapping {
 		if ( isset( $data['active'] ) && $this->is_active() !== (bool) $data['active'] ) {
 			$fields['active'] = (bool) $data['active'];
 			$formats[] = '%d';
+		}
+
+		// Did we get a primary flag?
+		if ( isset( $data['is_primary'] ) && $this->is_primary() !== (bool) $data['is_primary'] ) {
+			$fields['is_primary'] = (bool) $data['is_primary'];
+			$formats[] = '%d';
+
+			// If this one is to be the primary domain make sure others aren't
+			if ( $fields['is_primary'] ) {
+				$mappings = self::get_by_site( $this->get_site_id() );
+				if ( ! empty( $mappings ) ) {
+					foreach( $mappings as $mapping ) {
+						if ( $mapping->get_id() === $this->get_id() || ! $mapping->is_primary() ) {
+							continue;
+						}
+						$mapping->set_primary( false );
+					}
+				}
+			}
 		}
 
 		// Do we have things to update?
@@ -174,8 +217,8 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been updated.
 		 *
-		 * @param Mercator\Mapping $mapping         The mapping object.
-		 * @param Mercator\Mapping $mapping         The previous mapping object.
+		 * @param \Mercator\Mapping $mapping         The mapping object.
+		 * @param \Mercator\Mapping $mapping         The previous mapping object.
 		 */
 		do_action( 'mercator.mapping.updated', $this, $old_mapping );
 
@@ -185,7 +228,7 @@ class Mapping {
 	/**
 	 * Delete the mapping
 	 *
-	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function delete() {
 		global $wpdb;
@@ -204,7 +247,7 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been delete.
 		 *
-		 * @param Mercator\Mapping $mapping         The mapping object.
+		 * @param \Mercator\Mapping $mapping         The mapping object.
 		 */
 		do_action( 'mercator.mapping.deleted', $this );
 
@@ -216,7 +259,7 @@ class Mapping {
 	 *
 	 * Allows use as a callback, such as in `array_map`
 	 *
-	 * @param stdClass $data Raw mapping data
+	 * @param \stdClass $data Raw mapping data
 	 * @return Mapping
 	 */
 	protected static function to_instance( $data ) {
@@ -226,7 +269,7 @@ class Mapping {
 	/**
 	 * Convert list of data to Mapping instances
 	 *
-	 * @param stdClass[] $data Raw mapping rows
+	 * @param \stdClass[] $data Raw mapping rows
 	 * @return Mapping[]
 	 */
 	protected static function to_instances( $data ) {
@@ -237,7 +280,7 @@ class Mapping {
 	 * Get mapping by mapping ID
 	 *
 	 * @param int|Mapping $mapping Mapping ID or instance
-	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 * @return Mapping|\WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get( $mapping ) {
 		global $wpdb;
@@ -268,7 +311,7 @@ class Mapping {
 	/**
 	 * Get mapping by site ID
 	 *
-	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
+	 * @param int|\stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get_by_site( $site ) {
@@ -360,12 +403,53 @@ class Mapping {
 	}
 
 	/**
+	 * Get primary mapping by site ID
+	 *
+	 * @param int|\stdClass $site Site ID, or site object from {@see get_blog_details}
+	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 */
+	public static function get_primary_by_site( $site ) {
+		return self::get_primary( self::get_by_site( $site ) );
+	}
+
+	/**
+	 * Returns the primary mapping from an array of mappings
+	 *
+	 * @param array $mappings An array of Mapping objects
+	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 */
+	public static function get_primary( $mappings ) {
+		if ( empty( $mappings ) ) {
+			return $mappings;
+		}
+
+		if ( 1 === count( $mappings ) ) {
+			return array_shift( $mappings );
+		}
+
+		// Filter out non primary mappings
+		$primary_mappings = array_filter( $mappings, function( $mapping ) {
+			return $mapping->is_primary();
+		} );
+
+		// If no domains set as primary just return the first one
+		if ( empty( $primary_mappings ) ) {
+			return array_shift( $mappings );
+		}
+
+		return array_shift( $primary_mappings );
+	}
+
+	/**
 	 * Create a new domain mapping
 	 *
-	 * @param $site Site ID, or site object from {@see get_blog_details}
-	 * @return Mapping|WP_Error
+	 * @param string $site
+	 * @param string $domain
+	 * @param bool   $active
+	 * @param bool   $primary
+	 * @return Mapping|\WP_Error
 	 */
-	public static function create( $site, $domain, $active = false ) {
+	public static function create( $site, $domain, $active = false, $primary = false ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -407,8 +491,8 @@ class Mapping {
 		$suppress = $wpdb->suppress_errors( true );
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
-			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active ),
-			array( '%d', '%s', '%d' )
+			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active, 'is_primary' => $primary ),
+			array( '%d', '%s', '%d', '%d' )
 		);
 		$wpdb->suppress_errors( $suppress );
 
@@ -439,7 +523,7 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been created.
 		 *
-		 * @param Mercator\Mapping $mapping         The mapping object.
+		 * @param \Mercator\Mapping $mapping         The mapping object.
 		 */
 		do_action( 'mercator.mapping.created', $mapping );
 		return $mapping;
