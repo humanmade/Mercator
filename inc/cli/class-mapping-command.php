@@ -19,16 +19,17 @@ class Mapping_Command extends WP_CLI_Command {
 	protected function display( $mappings, $options ) {
 		$defaults = array(
 			'format' => 'table',
-			'fields' => array( 'id', 'domain', 'site', 'active' ),
+			'fields' => array( 'id', 'domain', 'site', 'active', 'is_primary' ),
 		);
 		$options = wp_parse_args( $options, $defaults );
 
 		$mapper = function ( Mapping $mapping ) {
 			$data = array(
-				'id'     => (int) $mapping->get_id(),
-				'domain' => $mapping->get_domain(),
-				'site'   => (int) $mapping->get_site_id(),
-				'active' => $mapping->is_active() ? __( 'Active', 'mercator' ) : __( 'Inactive', 'mercator' ),
+				'id'         => (int) $mapping->get_id(),
+				'domain'     => $mapping->get_domain(),
+				'site'       => (int) $mapping->get_site_id(),
+				'active'     => $mapping->is_active() ? __( 'Active', 'mercator' ) : __( 'Inactive', 'mercator' ),
+				'is_primary' => $mapping->is_primary() ? __( 'Primary', 'mercator' ) : '',
 			);
 			return apply_filters( 'mercator.cli.mapping.fields', $data, $mapping );
 		};
