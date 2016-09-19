@@ -1,7 +1,7 @@
 {
-	"name": "humanmade/mercator",
+	"name": "timeincuk/mercator",
 	"description": "WordPress multisite domain mapping for the modern era.",
-	"homepage": "https://github.com/humanmade/Mercator",
+	"homepage": "https://github.com/TimeIncUK/Mercator",
 	"keywords": [
 		"wordpress"
 	],
