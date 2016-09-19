@@ -44,7 +44,6 @@ class Alias_List_Table extends WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'domain'  => _x( 'Domain', 'mercator' ),
 			'active'  => _x( 'Active', 'mercator' ),
-			'primary' => _x( 'Primary', 'mercator' ),
 		);
 	}
 
@@ -163,6 +162,67 @@ class Alias_List_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Display the table
+	 *
+	 * @since 3.1.0
+	 * @access public
+	 */
+	public function display() {
+		$singular = $this->_args['singular'];
+
+		$this->display_tablenav( 'top' );
+
+		$this->screen->render_screen_reader_content( 'heading_list' );
+		?>
+<table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+	<thead>
+	<tr>
+		<?php $this->print_column_headers(); ?>
+	</tr>
+	</thead>
+
+	<tbody id="the-list"<?php
+	if ( $singular ) {
+		echo " data-wp-lists='list:$singular'";
+	} ?>>
+		<?php $this->display_primary_domain_row(); ?>
+		<?php $this->display_rows_or_placeholder(); ?>
+	</tbody>
+
+	<tfoot>
+	<tr>
+		<?php $this->print_column_headers( false ); ?>
+	</tr>
+	</tfoot>
+
+</table>
+		<?php
+		$this->display_tablenav( 'bottom' );
+	}
+
+	/**
+	 * Displays the current site information as the primary domain
+	 */
+	protected function display_primary_domain_row() {
+		$site   = get_site( $this->_args['site_id'] );
+		$domain = esc_html( $site->domain );
+		if ( substr( $domain, 0, 4 ) === 'www.' ) {
+			$domain = substr( $domain, 4 );
+		}
+
+		?>
+		<tr class="mercator-primary-domain">
+			<td></td>
+			<td>
+				<strong><?php echo esc_html( $domain ); ?></strong><br />
+				<em><?php esc_html_e( 'Primary domain', 'mercator' ); ?></em>
+			</td>
+			<td></td>
+		</tr>
+		<?php
+	}
+
+	/**
 	 * Get cell value for the checkbox column
 	 *
 	 * @param Mapping $mapping Current mapping item
@@ -219,7 +279,7 @@ class Alias_List_Table extends WP_List_Table {
 			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
 		);
 
-		if ( ! $mapping->is_primary() ) {
+		if ( $mapping->is_active() ) {
 			$primary_link = add_query_arg(
 				wp_parse_args( array(
 					'bulk_action' => 'make_primary',
@@ -254,16 +314,4 @@ class Alias_List_Table extends WP_List_Table {
 		return esc_html__( 'Inactive', 'mercator' );
 	}
 
-	/**
-	 * Get cell value for the primary column
-	 *
-	 * @param Mapping $mapping Current mapping item
-	 * @return string HTML for the cell
-	 */
-	protected function column_primary( $mapping ) {
-		if ( $mapping->is_primary() ) {
-			return '❤️ <span class="screen-reader-text">' . esc_html__( 'Primary', 'mercator' ) . '</span>';
-		}
-		return '';
-	}
 }

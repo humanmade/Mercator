@@ -60,15 +60,6 @@ class Mapping {
 	}
 
 	/**
-	 * Is the mapping the primary domain?
-	 *
-	 * @return boolean
-	 */
-	public function is_primary() {
-		return $this->data->is_primary == 1;
-	}
-
-	/**
 	 * Get site object
 	 *
 	 * @return stdClass|boolean {@see get_blog_details}
@@ -109,16 +100,35 @@ class Mapping {
 	}
 
 	/**
-	 * Set whether the mapping is active
+	 * Make this mapping the primary domain, eg. set the homeurl for the site
 	 *
-	 * @param bool $primary Should the mapping be primary? (True for primary, false for secondary)
-	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we created the old mapping, false if we didn't need to, or WP_Error if an error occurred
 	 */
-	public function set_primary( $primary ) {
-		$data = array(
-			'is_primary' => (bool) $primary,
-		);
-		return $this->update( $data );
+	public function set_primary() {
+		// Get current site details to update
+		$site = $this->get_site();
+
+		// Create a new mapping from the old canonical domain
+		$mapping = self::create( $site->blog_id, $site->domain, true );
+
+		// Set the new home and siteurl etc to the current mapping
+		if ( ! is_wp_error( $mapping ) ) {
+			update_blog_details( $site->blog_id, array(
+				'domain' => $this->get_domain(),
+			) );
+
+			// These are just a visual update for the site admin
+			$url = esc_url( $this->get_domain() );
+			update_blog_option( $site->blog_id, 'home', $url );
+			update_blog_option( $site->blog_id, 'siteurl', $url );
+
+			// Remove current mapping
+			$this->delete();
+		} else {
+			return $mapping;
+		}
+
+		return true;
 	}
 
 	/**
@@ -169,25 +179,6 @@ class Mapping {
 		if ( isset( $data['active'] ) && $this->is_active() !== (bool) $data['active'] ) {
 			$fields['active'] = (bool) $data['active'];
 			$formats[] = '%d';
-		}
-
-		// Did we get a primary flag?
-		if ( isset( $data['is_primary'] ) && $this->is_primary() !== (bool) $data['is_primary'] ) {
-			$fields['is_primary'] = (bool) $data['is_primary'];
-			$formats[] = '%d';
-
-			// If this one is to be the primary domain make sure others aren't
-			if ( $fields['is_primary'] ) {
-				$mappings = self::get_by_site( $this->get_site_id() );
-				if ( ! empty( $mappings ) ) {
-					foreach( $mappings as $mapping ) {
-						if ( $mapping->get_id() === $this->get_id() || ! $mapping->is_primary() ) {
-							continue;
-						}
-						$mapping->set_primary( false );
-					}
-				}
-			}
 		}
 
 		// Do we have things to update?
@@ -401,53 +392,14 @@ class Mapping {
 	}
 
 	/**
-	 * Get primary mapping by site ID
-	 *
-	 * @param int|\stdClass $site Site ID, or site object from {@see get_blog_details}
-	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
-	 */
-	public static function get_primary_by_site( $site ) {
-		return self::get_primary( self::get_by_site( $site ) );
-	}
-
-	/**
-	 * Returns the primary mapping from an array of mappings
-	 *
-	 * @param array $mappings An array of Mapping objects
-	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
-	 */
-	public static function get_primary( $mappings ) {
-		if ( empty( $mappings ) ) {
-			return $mappings;
-		}
-
-		if ( 1 === count( $mappings ) ) {
-			return array_shift( $mappings );
-		}
-
-		// Filter out non primary mappings
-		$primary_mappings = array_filter( $mappings, function( $mapping ) {
-			return $mapping->is_primary();
-		} );
-
-		// If no domains set as primary just return the first one
-		if ( empty( $primary_mappings ) ) {
-			return array_shift( $mappings );
-		}
-
-		return array_shift( $primary_mappings );
-	}
-
-	/**
 	 * Create a new domain mapping
 	 *
 	 * @param string $site
 	 * @param string $domain
 	 * @param bool   $active
-	 * @param bool   $primary
 	 * @return Mapping|\WP_Error
 	 */
-	public static function create( $site, $domain, $active = false, $primary = false ) {
+	public static function create( $site, $domain, $active = false ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -489,8 +441,8 @@ class Mapping {
 		$suppress = $wpdb->suppress_errors( true );
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
-			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active, 'is_primary' => $primary ),
-			array( '%d', '%s', '%d', '%d' )
+			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active ),
+			array( '%d', '%s', '%d' )
 		);
 		$wpdb->suppress_errors( $suppress );
 

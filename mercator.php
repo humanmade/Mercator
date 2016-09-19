@@ -191,7 +191,6 @@ function check_table() {
 		blog_id bigint(20) NOT NULL,
 		domain varchar(255) NOT NULL,
 		active tinyint(4) default 1,
-		is_primary tinyint(4) default 0,
 		PRIMARY KEY  (id),
 		KEY blog_id (blog_id,domain,active),
 		KEY domain (domain)

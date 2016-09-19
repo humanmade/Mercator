@@ -224,7 +224,8 @@ function handle_list_page_submit( $id, $action ) {
 					continue;
 				}
 
-				if ( $mapping->set_primary( true ) ) {
+				// Make this mapping primary
+				if ( $mapping->set_primary() ) {
 					$processed++;
 				}
 			}
@@ -404,7 +405,7 @@ function handle_edit_page_submit( $id, $mapping ) {
 	}
 	if ( empty( $mapping ) ) {
 		// Create the actual mapping
-		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'], $params['is_primary'] );
+		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );
 	}
 	else {
 		// Update our existing
@@ -478,7 +479,7 @@ function output_edit_page() {
 	else {
 		$domain  = $mapping->get_domain();
 		$active  = $mapping->is_active();
-		$primary = $mapping->is_primary();
+		$primary = false;
 	}
 
 ?>
