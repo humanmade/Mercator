@@ -64,7 +64,7 @@ class Mapping {
 	/**
 	 * Get site object
 	 *
-	 * @return \stdClass|boolean {@see get_blog_details}
+	 * @return stdClass|boolean {@see get_blog_details}
 	 */
 	public function get_site() {
 		return get_blog_details( $this->site, false );
@@ -92,7 +92,7 @@ class Mapping {
 	 * Set whether the mapping is active
 	 *
 	 * @param bool $active Should the mapping be active? (True for active, false for inactive)
-	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_active( $active ) {
 		$data = array(
@@ -105,7 +105,7 @@ class Mapping {
 	 * Set the domain for the mapping
 	 *
 	 * @param string $domain Domain name
-	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_domain( $domain ) {
 		$data = array(
@@ -119,8 +119,8 @@ class Mapping {
 	 *
 	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
 	 *
-	 * @param array|\stdClass $data Mapping fields (associative array or object properties)
-	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @param array|stdClass $data Mapping fields (associative array or object properties)
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function update( $data ) {
 		global $wpdb;
@@ -187,7 +187,7 @@ class Mapping {
 	/**
 	 * Delete the mapping
 	 *
-	 * @return bool|\WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function delete() {
 		global $wpdb;
@@ -218,7 +218,7 @@ class Mapping {
 	 *
 	 * Allows use as a callback, such as in `array_map`
 	 *
-	 * @param \stdClass $data Raw mapping data
+	 * @param stdClass $data Raw mapping data
 	 * @return Mapping
 	 */
 	protected static function to_instance( $data ) {
@@ -228,7 +228,7 @@ class Mapping {
 	/**
 	 * Convert list of data to Mapping instances
 	 *
-	 * @param \stdClass[] $data Raw mapping rows
+	 * @param stdClass[] $data Raw mapping rows
 	 * @return Mapping[]
 	 */
 	protected static function to_instances( $data ) {
@@ -239,7 +239,7 @@ class Mapping {
 	 * Get mapping by mapping ID
 	 *
 	 * @param int|Mapping $mapping Mapping ID or instance
-	 * @return Mapping|\WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get( $mapping ) {
 		global $wpdb;
@@ -270,7 +270,7 @@ class Mapping {
 	/**
 	 * Get mapping by site ID
 	 *
-	 * @param int|\stdClass $site Site ID, or site object from {@see get_blog_details}
+	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get_by_site( $site ) {
