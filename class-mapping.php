@@ -176,8 +176,8 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been updated.
 		 *
-		 * @param \Mercator\Mapping $mapping         The mapping object.
-		 * @param \Mercator\Mapping $mapping         The previous mapping object.
+		 * @param Mercator\Mapping $mapping         The mapping object.
+		 * @param Mercator\Mapping $mapping         The previous mapping object.
 		 */
 		do_action( 'mercator.mapping.updated', $this, $old_mapping );
 
@@ -206,7 +206,7 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been delete.
 		 *
-		 * @param \Mercator\Mapping $mapping         The mapping object.
+		 * @param Mercator\Mapping $mapping         The mapping object.
 		 */
 		do_action( 'mercator.mapping.deleted', $this );
 
@@ -441,7 +441,7 @@ class Mapping {
 		/**
 		 * Fires after a mapping has been created.
 		 *
-		 * @param \Mercator\Mapping $mapping         The mapping object.
+		 * @param Mercator\Mapping $mapping         The mapping object.
 		 */
 		do_action( 'mercator.mapping.created', $mapping );
 		return $mapping;
