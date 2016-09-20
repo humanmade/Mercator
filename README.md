@@ -62,11 +62,33 @@ Additionally, in order for `sunrise.php` to be loaded, you must add the followin
 define('SUNRISE', true);
 ```
 
-Aliases are created in the Network Admin > Sites > Edit Site screen.
-
 DNS for mapped domains must be configured for the domain to point to the WordPress
 installation, as well as configuring the web server to route requests for the
 domain to the WordPress application.
+
+## Addons
+Mercator is intentionally low-level but has a small ecosystem of addons that
+you can use as-is or as a basis for your own uses of the plugin.
+
+### Single Sign On
+[Mercator SSO](https://github.com/humanmade/Mercator-SSO)
+
+SSO allows you to login once and access the admin on any other site on
+the network that you belong to. Additionally supports multinetwork installs.
+
+### Admin GUI
+[Mercator GUI](https://github.com/humanmade/Mercator-GUI)
+
+While you may want to build your own admin this addon will get you up and
+running quickly. Has a network level interface and optional per site admin
+screens are coming soon.
+
+### Redirects
+[Mercator Redirect](https://github.com/humanmade/Mercator-Redirect)
+
+It's up to you to handle redirecting visitors to a particular mapped domain
+or to the canonical domain in `wp_blogs` however this addon will handle
+most common requirements.
 
 ## Upgrading from WPMU Domain Mapping
 This plugin is a complete replacement for WPMU Domain Mapping. The database
