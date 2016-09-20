@@ -472,12 +472,12 @@ function output_edit_page() {
 	output_page_header( $id, $messages );
 
 	if ( empty( $mapping ) || ! empty( $_POST['_wpnonce'] ) ) {
-		$domain  = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
-		$active  = ! empty( $_POST['active'] );
+		$domain = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
+		$active = ! empty( $_POST['active'] );
 	}
 	else {
-		$domain  = $mapping->get_domain();
-		$active  = $mapping->is_active();
+		$domain = $mapping->get_domain();
+		$active = $mapping->is_active();
 	}
 
 ?>
