@@ -373,9 +373,6 @@ function validate_alias_parameters( $params, $check_permission = true ) {
 	// Validate active flag
 	$valid['active'] = empty( $params['active'] ) ? false : true;
 
-	// Validate primary flag
-	$valid['is_primary'] = empty( $params['is_primary'] ) ? false : true;
-
 	return $valid;
 }
 
@@ -477,12 +474,10 @@ function output_edit_page() {
 	if ( empty( $mapping ) || ! empty( $_POST['_wpnonce'] ) ) {
 		$domain  = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
 		$active  = ! empty( $_POST['active'] );
-		$primary = ! empty( $_POST['primary'] );
 	}
 	else {
 		$domain  = $mapping->get_domain();
 		$active  = $mapping->is_active();
-		$primary = false;
 	}
 
 ?>
@@ -508,19 +503,6 @@ function output_edit_page() {
 							name="active" <?php checked( $active ) ?> />
 
 						<?php esc_html_e( 'Mark alias as active', 'mercator' ) ?>
-					</label>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row">
-					<?php echo esc_html_x( 'Primary', 'field name', 'mercator' ) ?>
-				</th>
-				<td>
-					<label>
-						<input type="checkbox"
-							name="is_primary" <?php checked( $primary ) ?> />
-
-						<?php esc_html_e( 'Make alias the primary domain', 'mercator' ) ?>
 					</label>
 				</td>
 			</tr>
