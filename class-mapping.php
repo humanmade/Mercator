@@ -394,7 +394,7 @@ class Mapping {
 	/**
 	 * Create a new domain mapping
 	 *
-	 * @param string $site
+	 * @param string $site Site ID, or site object from {@see get_blog_details}
 	 * @param string $domain
 	 * @param bool   $active
 	 * @return Mapping|\WP_Error

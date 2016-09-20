@@ -41,9 +41,9 @@ class Alias_List_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'cb'      => '<input type="checkbox" />',
-			'domain'  => _x( 'Domain', 'mercator' ),
-			'active'  => _x( 'Active', 'mercator' ),
+			'cb'     => '<input type="checkbox" />',
+			'domain' => _x( 'Domain', 'mercator' ),
+			'active' => _x( 'Active', 'mercator' ),
 		);
 	}
 
