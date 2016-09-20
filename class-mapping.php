@@ -104,7 +104,7 @@ class Mapping {
 	 *
 	 * @return bool|\WP_Error True if we created the old mapping, false if we didn't need to, or WP_Error if an error occurred
 	 */
-	public function set_primary() {
+	public function make_primary() {
 		// Get current site details to update
 		$site = $this->get_site();
 

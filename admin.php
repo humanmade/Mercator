@@ -225,7 +225,7 @@ function handle_list_page_submit( $id, $action ) {
 				}
 
 				// Make this mapping primary
-				if ( $mapping->set_primary() ) {
+				if ( $mapping->make_primary() ) {
 					$processed++;
 				}
 			}
@@ -292,7 +292,10 @@ function output_list_page() {
 				'edit'         => __( 'Updated %s',     'mercator' ),
 				'make_primary' => __( '%s set as primary domain', 'mercator' ),
 			);
-			if ( $did_action !== 'delete' ) {
+			if ( $did_action === 'make_primary' ) {
+				$domain = parse_url( get_blog_option( $id, 'home' ), PHP_URL_HOST );
+			}
+			elseif ( $did_action !== 'delete' ) {
 				$mapping = Mapping::get( $mappings[0] );
 				$domain = $mapping->get_domain();
 			}
