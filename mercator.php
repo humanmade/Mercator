@@ -21,6 +21,7 @@ require __DIR__ . '/class-network-mapping.php';
 require __DIR__ . '/multinetwork.php';
 require __DIR__ . '/sso.php';
 require __DIR__ . '/sso-multinetwork.php';
+require __DIR__ . '/inc/utils/domains.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/inc/cli/class-mapping-command.php';
