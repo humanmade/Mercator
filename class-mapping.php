@@ -171,6 +171,7 @@ class Mapping {
 
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
+		wp_cache_delete( 'domain:' . $old_mapping->get_domain(), 'domain_mapping' );
 		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'domain_mapping' );
 
 		/**
