@@ -162,6 +162,67 @@ class Alias_List_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Display the table
+	 *
+	 * @since 3.1.0
+	 * @access public
+	 */
+	public function display() {
+		$singular = $this->_args['singular'];
+
+		$this->display_tablenav( 'top' );
+
+		$this->screen->render_screen_reader_content( 'heading_list' );
+		?>
+<table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+	<thead>
+	<tr>
+		<?php $this->print_column_headers(); ?>
+	</tr>
+	</thead>
+
+	<tbody id="the-list"<?php
+	if ( $singular ) {
+		echo " data-wp-lists='list:$singular'";
+	} ?>>
+		<?php $this->display_primary_domain_row(); ?>
+		<?php $this->display_rows_or_placeholder(); ?>
+	</tbody>
+
+	<tfoot>
+	<tr>
+		<?php $this->print_column_headers( false ); ?>
+	</tr>
+	</tfoot>
+
+</table>
+		<?php
+		$this->display_tablenav( 'bottom' );
+	}
+
+	/**
+	 * Displays the current site information as the primary domain
+	 */
+	protected function display_primary_domain_row() {
+		$site   = get_site( $this->_args['site_id'] );
+		$domain = esc_html( $site->domain );
+		if ( substr( $domain, 0, 4 ) === 'www.' ) {
+			$domain = substr( $domain, 4 );
+		}
+
+		?>
+		<tr class="mercator-primary-domain">
+			<td></td>
+			<td>
+				<strong><?php echo esc_html( $domain ); ?></strong><br />
+				<em><?php esc_html_e( 'Primary domain', 'mercator' ); ?></em>
+			</td>
+			<td></td>
+		</tr>
+		<?php
+	}
+
+	/**
 	 * Get cell value for the checkbox column
 	 *
 	 * @param Mapping $mapping Current mapping item
@@ -204,10 +265,6 @@ class Alias_List_Table extends WP_List_Table {
 
 		$link = add_query_arg( $args, network_admin_url( 'admin.php' ) );
 
-		$delete_args = $args;
-		$delete_args['bulk_action'] = 'delete';
-		$delete_link = add_query_arg( $delete_args, network_admin_url( 'admin.php' ) );
-
 		$edit_link = add_query_arg(
 			array(
 				'action'  => 'mercator-edit',
@@ -220,8 +277,24 @@ class Alias_List_Table extends WP_List_Table {
 		$actions = array(
 			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html__( 'Edit', 'mercator' ) ),
 			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
-			'delete' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'mercator' ) ),
 		);
+
+		if ( $mapping->is_active() ) {
+			$primary_link = add_query_arg(
+				wp_parse_args( array(
+					'bulk_action' => 'make_primary',
+				), $args ),
+				network_admin_url( 'admin.php' )
+			);
+			$actions['make_primary'] = sprintf( '<a href="%s">%s</a>', esc_url( $primary_link ), esc_html__( 'Make primary', 'mercator' ) );
+		}
+
+		$delete_args = $args;
+		$delete_args['bulk_action'] = 'delete';
+		$delete_link = add_query_arg( $delete_args, network_admin_url( 'admin.php' ) );
+
+		$actions['delete'] = sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'mercator' ) );
+
 		$actions = apply_filters( 'mercator_alias_actions', $actions, $mapping );
 		$action_html = $this->row_actions( $actions, false );
 
@@ -235,10 +308,10 @@ class Alias_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_active( $mapping ) {
-		$active = $mapping->is_active();
-		if ( $active ) {
+		if ( $mapping->is_active() ) {
 			return esc_html__( 'Active', 'mercator' );
 		}
-		return esc_html__( 'Inactive', 'mercator');
+		return esc_html__( 'Inactive', 'mercator' );
 	}
+
 }

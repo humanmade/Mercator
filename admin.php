@@ -217,6 +217,20 @@ function handle_list_page_submit( $id, $action ) {
 			}
 			break;
 
+		case 'make_primary':
+			foreach ( $mappings as $id ) {
+				$mapping = Mapping::get( $id );
+				if ( is_wp_error( $mapping ) ) {
+					continue;
+				}
+
+				// Make this mapping primary
+				if ( $mapping->make_primary() ) {
+					$processed++;
+				}
+			}
+			break;
+
 		default:
 			do_action_ref_array( "mercator_aliases_bulk_action-{$action}", array( $mappings, &$processed, $action ) );
 			break;
@@ -271,13 +285,17 @@ function output_list_page() {
 		// Special case for single, as it's not really a "bulk" action
 		if ( $processed === 1 ) {
 			$bulk_messages = array(
-				'activate'   => __( 'Activated %s',   'mercator' ),
-				'deactivate' => __( 'Deactivated %s', 'mercator' ),
-				'delete'     => __( 'Deleted %s',     'mercator' ),
-				'add'        => __( 'Created %s',     'mercator' ),
-				'edit'       => __( 'Updated %s',     'mercator' ),
+				'activate'     => __( 'Activated %s',   'mercator' ),
+				'deactivate'   => __( 'Deactivated %s', 'mercator' ),
+				'delete'       => __( 'Deleted %s',     'mercator' ),
+				'add'          => __( 'Created %s',     'mercator' ),
+				'edit'         => __( 'Updated %s',     'mercator' ),
+				'make_primary' => __( '%s set as primary domain', 'mercator' ),
 			);
-			if ( $did_action !== 'delete' ) {
+			if ( $did_action === 'make_primary' ) {
+				$domain = parse_url( get_blog_option( $id, 'home' ), PHP_URL_HOST );
+			}
+			elseif ( $did_action !== 'delete' ) {
 				$mapping = Mapping::get( $mappings[0] );
 				$domain = $mapping->get_domain();
 			}
@@ -387,7 +405,7 @@ function handle_edit_page_submit( $id, $mapping ) {
 	}
 	if ( empty( $mapping ) ) {
 		// Create the actual mapping
-		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );	
+		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );
 	}
 	else {
 		// Update our existing
