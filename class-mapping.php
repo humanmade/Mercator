@@ -1,6 +1,8 @@
 <?php
 namespace Mercator;
 
+use WP_Error;
+
 /**
  * Mapping object
  *
@@ -47,7 +49,7 @@ class Mapping {
 	 * @return int Mapping ID
 	 */
 	public function get_id() {
-		return $this->data->id;
+		return absint( $this->data->id );
 	}
 
 	/**
@@ -74,7 +76,7 @@ class Mapping {
 	 * @return int Site ID
 	 */
 	public function get_site_id() {
-		return $this->site;
+		return absint( $this->site );
 	}
 
 	/**
@@ -166,7 +168,7 @@ class Mapping {
 			if ( is_wp_error( $existing ) ) {
 				return $existing;
 			}
-			if ( ! empty( $existing ) ) {
+			if ( ! empty( $existing ) && $existing->get_site_id() !== $data['site'] ) {
 				// Domain exists already and points to another site
 				return new \WP_Error( 'mercator.mapping.domain_exists' );
 			}
@@ -201,6 +203,7 @@ class Mapping {
 
 		// Update the cache
 		wp_cache_delete( 'id:' . $this->get_site_id(), 'domain_mapping' );
+		wp_cache_delete( 'domain:' . $old_mapping->get_domain(), 'domain_mapping' );
 		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'domain_mapping' );
 
 		/**
