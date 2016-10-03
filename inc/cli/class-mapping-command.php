@@ -25,10 +25,10 @@ class Mapping_Command extends WP_CLI_Command {
 
 		$mapper = function ( Mapping $mapping ) {
 			$data = array(
-				'id'         => (int) $mapping->get_id(),
-				'domain'     => $mapping->get_domain(),
-				'site'       => (int) $mapping->get_site_id(),
-				'active'     => $mapping->is_active() ? __( 'Active', 'mercator' ) : __( 'Inactive', 'mercator' ),
+				'id'     => (int) $mapping->get_id(),
+				'domain' => $mapping->get_domain(),
+				'site'   => (int) $mapping->get_site_id(),
+				'active' => $mapping->is_active() ? __( 'Active', 'mercator' ) : __( 'Inactive', 'mercator' ),
 			);
 			return apply_filters( 'mercator.cli.mapping.fields', $data, $mapping );
 		};
