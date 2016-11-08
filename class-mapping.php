@@ -104,7 +104,7 @@ class Mapping {
 	/**
 	 * Make this mapping the primary domain, eg. set the homeurl for the site
 	 *
-	 * @return bool|\WP_Error True if we created the old mapping, false if we didn't need to, or WP_Error if an error occurred
+	 * @return bool|\WP_Error True if we created the old mapping or WP_Error if an error occurred
 	 */
 	public function make_primary() {
 		// Get current site details to update
@@ -113,22 +113,22 @@ class Mapping {
 		// Create a new mapping from the old canonical domain
 		$mapping = self::create( $site->blog_id, $site->domain, true );
 
-		// Set the new home and siteurl etc to the current mapping
-		if ( ! is_wp_error( $mapping ) ) {
-			update_blog_details( $site->blog_id, array(
-				'domain' => $this->get_domain(),
-			) );
-
-			// These are just a visual update for the site admin
-			$url = esc_url( $this->get_domain() );
-			update_blog_option( $site->blog_id, 'home', $url );
-			update_blog_option( $site->blog_id, 'siteurl', $url );
-
-			// Remove current mapping
-			$this->delete();
-		} else {
+		if ( is_wp_error( $mapping ) ) {
 			return $mapping;
 		}
+
+		// Set the new home and siteurl etc to the current mapping
+		update_blog_details( $site->blog_id, array(
+			'domain' => $this->get_domain(),
+		) );
+
+		// These are just a visual update for the site admin
+		$url = esc_url( $this->get_domain() );
+		update_blog_option( $site->blog_id, 'home', $url );
+		update_blog_option( $site->blog_id, 'siteurl', $url );
+
+		// Remove current mapping
+		$this->delete();
 
 		return true;
 	}
