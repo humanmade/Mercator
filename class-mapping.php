@@ -102,6 +102,45 @@ class Mapping {
 	}
 
 	/**
+	 * Make this mapping the primary domain, eg. set the homeurl for the site
+	 *
+	 * @return bool|\WP_Error True if we created the old mapping or WP_Error if an error occurred
+	 */
+	public function make_primary() {
+		// Get current site details to update
+		$site = $this->get_site();
+
+		// Create a new mapping from the old canonical domain
+		$mapping = self::create( $site->blog_id, $site->domain, true );
+
+		if ( is_wp_error( $mapping ) ) {
+			return $mapping;
+		}
+
+		// Set the new home and siteurl etc to the current mapping
+		update_blog_details( $site->blog_id, array(
+			'domain' => $this->get_domain(),
+		) );
+
+		// These are just a visual update for the site admin
+		$url = esc_url( $this->get_domain() );
+		update_blog_option( $site->blog_id, 'home', $url );
+		update_blog_option( $site->blog_id, 'siteurl', $url );
+
+		// Remove current mapping
+		$this->delete();
+
+		/**
+		 * Fires after a mapping has set as primary.
+		 *
+		 * @param Mercator\Mapping $mapping The mapping object.
+		 */
+		do_action( 'mercator.mapping.made_primary', $this );
+
+		return true;
+	}
+
+	/**
 	 * Set the domain for the mapping
 	 *
 	 * @param string $domain Domain name
@@ -365,8 +404,10 @@ class Mapping {
 	/**
 	 * Create a new domain mapping
 	 *
-	 * @param $site Site ID, or site object from {@see get_blog_details}
-	 * @return Mapping|WP_Error
+	 * @param string $site   Site ID, or site object from {@see get_blog_details}
+	 * @param string $domain
+	 * @param bool   $active
+	 * @return Mapping|\WP_Error
 	 */
 	public static function create( $site, $domain, $active = false ) {
 		global $wpdb;
