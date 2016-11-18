@@ -130,6 +130,13 @@ class Mapping {
 		// Remove current mapping
 		$this->delete();
 
+		/**
+		 * Fires after a mapping has set as primary.
+		 *
+		 * @param Mercator\Mapping $mapping The mapping object.
+		 */
+		do_action( 'mercator.mapping.made_primary', $this );
+
 		return true;
 	}
 
