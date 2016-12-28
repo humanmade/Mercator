@@ -73,7 +73,13 @@ class Network_Mapping {
 	 * @return stdClass|boolean {@see get_blog_details}
 	 */
 	public function get_network() {
-		return wp_get_network( $this->network );
+		global $wp_version;
+
+		if ( version_compare( $wp_version, '4.7', '<' ) ) {
+			return wp_get_network( $this->network );
+		} else {
+			return get_network( $this->network );
+		}
 	}
 
 	/**

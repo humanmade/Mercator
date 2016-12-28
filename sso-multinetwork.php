@@ -94,20 +94,22 @@ function get_main_network() {
 	}
 
 	// No function, do it ourselves
-	global $wpdb;
+	global $wpdb, $wp_version;
+
+	$get_network_function = version_compare( $wp_version, '4.7', '<' ) ? 'wp_get_network' : 'get_network';
 
 	if ( defined( 'PRIMARY_NETWORK_ID' ) )
-		return wp_get_network( (int) PRIMARY_NETWORK_ID );
+		return call_user_func( $get_network_function, (int) PRIMARY_NETWORK_ID );
 
 	$primary_network_id = (int) wp_cache_get( 'primary_network_id', 'site-options' );
 
 	if ( $primary_network_id )
-		return wp_get_network( $primary_network_id );
+		return call_user_func( $get_network_function, $primary_network_id );
 
 	$primary_network_id = (int) $wpdb->get_var( "SELECT id FROM $wpdb->site ORDER BY id LIMIT 1" );
 	wp_cache_add( 'primary_network_id', $primary_network_id, 'site-options' );
 
-	return wp_get_network( $primary_network_id );
+	return call_user_func( $get_network_function, $primary_network_id );
 }
 
 /**
