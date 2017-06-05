@@ -1,9 +1,13 @@
 <?php
 /**
- * Mercator
- *
- * WordPress multisite domain mapping for the modern era.
- *
+ * Plugin Name: Mercator
+ * Plugin URI: https://github.com/humanmade/Mercator
+ * Description: WordPress multisite domain mapping for the modern era.
+ * Version: 0.1
+ * Author: humanmade
+ * Author URI: https://github.com/humanmade
+ * License: GPLv2
+ * 
  * @package Mercator
  */
 
