@@ -337,3 +337,29 @@ function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 
 	return $mangled;
 }
+
+/**
+ * Mangle the content URL to give our mapped domain
+ *
+ * @param string $url The complete home URL including scheme and path.
+ * @param string $path Path relative to the home URL. Blank string if no path is specified.
+ * @return string Mangled Content URL
+ */
+function mangle_content_url( $url, $path) {
+	//get site ID for use with getting mapped domain name
+	$site_id = get_current_blog_id();
+	//pull in site aliases
+	$current_mapping = $GLOBALS['mercator_current_mapping'];
+	//make sure the current domain is a mapped domain, else return the original url
+	if ( empty( $current_mapping ) || $site_id !== (int) $current_mapping->get_site_id() ) {
+		return $url;
+	}
+
+	// Replace the domain with mapped domain within the url
+	$domain = parse_url( $url, PHP_URL_HOST );
+	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
+	$mangled = preg_replace( $regex, '${1}' . $current_mapping->get_domain(), $url );
+	
+	//return filtered content url
+	return $mangled;
+}
