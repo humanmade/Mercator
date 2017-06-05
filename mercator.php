@@ -14,7 +14,7 @@ use WP_CLI;
 /**
  * Current version of Mercator.
  */
-const VERSION = '0.1';
+const VERSION = '1.0.0';
 
 require __DIR__ . '/class-mapping.php';
 require __DIR__ . '/class-network-mapping.php';
@@ -100,6 +100,11 @@ function startup() {
 	}
 
 	/**
+	 * Check the table exists and that we're up to date.
+	 */
+	add_action( 'admin_init', __NAMESPACE__ . '\\check_table', -101 );
+
+	/**
 	 * Fired after Mercator core has been loaded
 	 *
 	 * Hook into this to handle any add-on functionality.
@@ -130,8 +135,6 @@ function check_domain_mapping( $site, $domain ) {
 	if ( ! empty( $site ) ) {
 		return $site;
 	}
-
-	global $wpdb;
 
 	// Grab both WWW and no-WWW
 	if ( strpos( $domain, 'www.' ) === 0 ) {
@@ -186,10 +189,14 @@ function check_domain_mapping( $site, $domain ) {
 function check_table() {
 	global $wpdb;
 
+	if ( get_option( 'mercator.db.version' ) === VERSION ) {
+		return 'exists';
+	}
+
 	$schema = "CREATE TABLE {$wpdb->dmtable} (
 		id bigint(20) NOT NULL auto_increment,
 		blog_id bigint(20) NOT NULL,
-		domain varchar(255) NOT NULL,
+		domain varchar(191) NOT NULL,
 		active tinyint(4) default 1,
 		PRIMARY KEY  (id),
 		KEY blog_id (blog_id,domain,active),
@@ -218,6 +225,12 @@ function check_table() {
 		// No changes, database already exists and is up-to-date
 		return 'exists';
 	}
+
+	// utf8mb4 conversion.
+	maybe_convert_table_to_utf8mb4( $wpdb->dmtable );
+
+	// Update db version option.
+	update_option( 'mercator.db.version', VERSION );
 
 	return 'created';
 }
