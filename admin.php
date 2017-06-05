@@ -70,9 +70,11 @@ function maybe_output_site_tab() {
 		return;
 	}
 
-	$class = ( ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] === 'mercator-aliases' ) ? ' nav-tab-active' : '';
+	$action = sanitize_key( $_REQUEST['action'] );
+	$class  = ! empty( $action ) && in_array( $action, array( 'mercator-aliases', 'mercator-edit', 'mercator-add' ), true )
+		? ' nav-tab-active'
+		: ''; ?>
 
-?>
 	<span id="mercator-aliases-nav-link" class="hide-if-no-js"><a href="<?php echo network_admin_url( 'admin.php?action=mercator-aliases' ) . '&id=' . $id ?>" class="nav-tab<?php echo $class ?>"><?php esc_html_e( 'Aliases', 'mercator' ) ?></a></span>
 	<script>jQuery(function ($) {
 		$( '#mercator-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) );
