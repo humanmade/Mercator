@@ -189,7 +189,7 @@ function check_domain_mapping( $site, $domain ) {
 function check_table() {
 	global $wpdb;
 
-	if ( get_option( 'mercator.db.version' ) === VERSION ) {
+	if ( get_site_option( 'mercator.db.version' ) === VERSION ) {
 		return 'exists';
 	}
 
@@ -230,7 +230,7 @@ function check_table() {
 	maybe_convert_table_to_utf8mb4( $wpdb->dmtable );
 
 	// Update db version option.
-	update_option( 'mercator.db.version', VERSION );
+	update_site_option( 'mercator.db.version', VERSION );
 
 	return 'created';
 }
