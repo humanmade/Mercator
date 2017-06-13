@@ -14,7 +14,7 @@ use WP_CLI;
 /**
  * Current version of Mercator.
  */
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 
 require __DIR__ . '/class-mapping.php';
 require __DIR__ . '/class-network-mapping.php';
