@@ -73,7 +73,7 @@ function maybe_output_site_tab() {
 	$class = ( ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] === 'mercator-aliases' ) ? ' nav-tab-active' : '';
 
 ?>
-	<span id="mercator-aliases-nav-link" class="hide-if-no-js"><a href="<?php echo network_admin_url( 'admin.php?action=mercator-aliases' ) . '&id=' . $id; ?>" class="nav-tab<?php echo $class; ?>"><?php esc_html_e( 'Aliases', 'mercator' ); ?></a></span>
+	<span id="mercator-aliases-nav-link" class="hide-if-no-js"><a href="<?php echo esc_url( network_admin_url( 'admin.php?action=mercator-aliases' ) . '&id=' . $id ); ?>" class="nav-tab<?php echo $class; ?>"><?php esc_html_e( 'Aliases', 'mercator' ); ?></a></span>
 	<script>jQuery(function ($) {
 		$( '#mercator-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) );
 	});</script>
