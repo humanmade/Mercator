@@ -93,28 +93,33 @@ class Alias_List_Table extends WP_List_Table {
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two = '';
-			echo '<input type="hidden" name="id" value="' . $this->_args['site_id'] . '" />';
+			echo '<input type="hidden" name="id" value="' . esc_attr( $this->_args['site_id'] ) . '" />';
 			wp_nonce_field( 'mercator-aliases-bulk-' . $this->_args['site_id'] );
 		} else {
 			$two = '2';
 		}
 
-		if ( empty( $this->_actions ) )
+		if ( empty( $this->_actions ) ) {
 			return;
+		}
 
-		echo "<label for='bulk-action-selector-" . esc_attr( $which ) . "' class='screen-reader-text'>" . __( 'Select bulk action' ) . "</label>";
+		echo "<label for='bulk-action-selector-" . esc_attr( $which ) . "' class='screen-reader-text'>" . esc_html__( 'Select bulk action' ) . '</label>';
 		echo "<select name='bulk_action$two' id='bulk-action-selector-" . esc_attr( $which ) . "'>\n";
-		echo "<option value='-1' selected='selected'>" . __( 'Bulk Actions' ) . "</option>\n";
+		echo "<option value='-1' selected='selected'>" . esc_html__( 'Bulk Actions' ) . "</option>\n";
 
 		foreach ( $this->_actions as $name => $title ) {
-			$class = 'edit' == $name ? ' class="hide-if-no-js"' : '';
+			$class = 'edit' == $name ? 'hide-if-no-js' : '';
 
-			echo "\t<option value='$name'$class>$title</option>\n";
+			echo "\t<option value='" . esc_attr( $name ) . "' class='" . esc_attr( $class ) . "'>" . esc_html( $title ) . "</option>\n";
 		}
 
 		echo "</select>\n";
 
-		submit_button( __( 'Apply' ), 'action', false, false, array( 'id' => "doaction$two" ) );
+		submit_button(
+			esc_html__( 'Apply' ), 'action', false, false, array(
+				'id' => "doaction$two",
+			)
+		);
 		echo "\n";
 	}
 
@@ -127,11 +132,13 @@ class Alias_List_Table extends WP_List_Table {
 	 * @return string|bool The action name or False if no action was selected
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['bulk_action'] ) && -1 != $_REQUEST['bulk_action'] )
+		if ( isset( $_REQUEST['bulk_action'] ) && -1 != $_REQUEST['bulk_action'] ) {
 			return $_REQUEST['bulk_action'];
+		}
 
-		if ( isset( $_REQUEST['bulk_action2'] ) && -1 != $_REQUEST['bulk_action2'] )
+		if ( isset( $_REQUEST['bulk_action2'] ) && -1 != $_REQUEST['bulk_action2'] ) {
 			return $_REQUEST['bulk_action2'];
+		}
 
 		return false;
 	}
@@ -146,8 +153,9 @@ class Alias_List_Table extends WP_List_Table {
 	protected function extra_tablenav( $which ) {
 		global $status;
 
-		if ( $which !== 'top' )
+		if ( $which !== 'top' ) {
 			return;
+		}
 
 		$add_link = add_query_arg(
 			array(
@@ -195,8 +203,7 @@ class Alias_List_Table extends WP_List_Table {
 		if ( ! $mapping->is_active() ) {
 			$text = __( 'Activate', 'mercator' );
 			$action = 'activate';
-		}
-		else {
+		} else {
 			$text = __( 'Deactivate', 'mercator' );
 			$action = 'deactivate';
 		}
@@ -239,6 +246,6 @@ class Alias_List_Table extends WP_List_Table {
 		if ( $active ) {
 			return esc_html__( 'Active', 'mercator' );
 		}
-		return esc_html__( 'Inactive', 'mercator');
+		return esc_html__( 'Inactive', 'mercator' );
 	}
 }

@@ -43,17 +43,15 @@ function run_preflight() {
 	 *
 	 * COOKIEHASH by default is based on the siteurl set for the network. When
 	 * using single-sign-on, the detection is based on domains.
-	 * 
+	 *
 	 * For
 	 * single-sign-on to work correctly across multiple networks, this must be
 	 * defined as a static value.
 	 */
-	// 
-	$skip_cookiehash_check = apply_filters( 'mercator.sso.multinetwork.skip_cookiehash_check', false );
+		$skip_cookiehash_check = apply_filters( 'mercator.sso.multinetwork.skip_cookiehash_check', false );
 	if ( ! defined( 'COOKIEHASH' ) ) {
 		// status_header( 500 );
 		// header( 'X-Mercator: COOKIEHASH' );
-
 		// wp_die( 'The constant <code>COOKIEHASH</code> is <strong>not</strong> defined. Please set this to a static value to share cookies across overlapping networks.' );
 	}
 
@@ -62,7 +60,7 @@ function run_preflight() {
 	// S : Mayday! Mayday!
 	// Mc: What the heck is that?
 	// J : Why, that's the Russian New Year. We can have a parade and serve hot
-	//     hors d'oeuvres... 
+	// hors d'oeuvres...
 	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\bootstrap' );
 }
 
@@ -96,13 +94,15 @@ function get_main_network() {
 	// No function, do it ourselves
 	global $wpdb;
 
-	if ( defined( 'PRIMARY_NETWORK_ID' ) )
+	if ( defined( 'PRIMARY_NETWORK_ID' ) ) {
 		return wp_get_network( (int) PRIMARY_NETWORK_ID );
+	}
 
 	$primary_network_id = (int) wp_cache_get( 'primary_network_id', 'site-options' );
 
-	if ( $primary_network_id )
+	if ( $primary_network_id ) {
 		return wp_get_network( $primary_network_id );
+	}
 
 	$primary_network_id = (int) $wpdb->get_var( "SELECT id FROM $wpdb->site ORDER BY id LIMIT 1" );
 	wp_cache_add( 'primary_network_id', $primary_network_id, 'site-options' );
@@ -117,8 +117,8 @@ function get_main_network() {
  * they can share cookies. However, the COOKIEHASH value for both must be set to
  * the same.
  *
- * @param boolean $is_main Is this the main domain?
- * @param string $domain Domain we checked against
+ * @param boolean  $is_main Is this the main domain?
+ * @param string   $domain Domain we checked against
  * @param stdClass $network Network we fetched the cookie domain from
  * @return boolean Corrected main domain status
  */
@@ -141,8 +141,7 @@ function correct_for_subdomain_networks( $is_main, $domain, $network ) {
 
 	if ( strlen( $current ) < strlen( $main_domain ) ) {
 		$subset = false;
-	}
-	else {
+	} else {
 		$subset = ( substr( $current, -strlen( $main_domain ) ) === $main_domain );
 	}
 

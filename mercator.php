@@ -32,8 +32,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 // doing unit tests.
 if ( defined( 'MERCATOR_SKIP_CHECKS' ) && MERCATOR_SKIP_CHECKS ) {
 	startup();
-}
-else {
+} else {
 	run_preflight();
 }
 
@@ -118,16 +117,18 @@ function startup() {
  * @param string $message Message to use in the warning.
  */
 function warn_with_message( $message ) {
-	add_action( 'all_admin_notices', function () use ( $message ) {
-		echo '<div class="error"><p>' . $message . '</p></div>';
-	} );
+	add_action(
+		'all_admin_notices', function () use ( $message ) {
+			echo '<div class="error"><p>' . esc_html( $message ) . '</p></div>';
+		}
+	);
 }
 
 /**
  * Check if a domain has a mapping available
  *
  * @param stdClass|null $site Site object if already found, null otherwise
- * @param string $domain Domain we're looking for
+ * @param string        $domain Domain we're looking for
  * @return stdClass|null Site object if already found, null otherwise
  */
 function check_domain_mapping( $site, $domain ) {
@@ -140,8 +141,7 @@ function check_domain_mapping( $site, $domain ) {
 	if ( strpos( $domain, 'www.' ) === 0 ) {
 		$www = $domain;
 		$nowww = substr( $domain, 4 );
-	}
-	else {
+	} else {
 		$nowww = $domain;
 		$www = 'www.' . $domain;
 	}
@@ -263,7 +263,7 @@ function clear_mappings_on_delete( $site_id ) {
 
 		if ( is_wp_error( $error ) ) {
 			$message = sprintf(
-				__( 'Unable to delete mapping %d for site %d', 'mercator' ),
+				__( 'Unable to delete mapping %1$d for site %2$d', 'mercator' ),
 				$mapping->get_id(),
 				$site_id
 			);
@@ -289,8 +289,7 @@ function register_mapped_filters() {
 	if ( strpos( $domain, 'www.' ) === 0 ) {
 		$www = $domain;
 		$nowww = substr( $domain, 4 );
-	}
-	else {
+	} else {
 		$nowww = $domain;
 		$www = 'www.' . $domain;
 	}
@@ -314,10 +313,10 @@ function register_mapped_filters() {
 /**
  * Mangle the home URL to give our primary domain
  *
- * @param string $url The complete home URL including scheme and path.
- * @param string $path Path relative to the home URL. Blank string if no path is specified.
+ * @param string      $url The complete home URL including scheme and path.
+ * @param string      $path Path relative to the home URL. Blank string if no path is specified.
  * @param string|null $orig_scheme Scheme to give the home URL context. Accepts 'http', 'https', 'relative' or null.
- * @param int|null $site_id Blog ID, or null for the current blog.
+ * @param int|null    $site_id Blog ID, or null for the current blog.
  * @return string Mangled URL
  */
 function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {

@@ -38,7 +38,7 @@ function run_preflight() {
 	// X: There's a problem in the cockpit!
 	// Y: What's that?
 	// X: It's the room at the front of the airplane where they control it, but
-	//    that's not important right now.
+	// that's not important right now.
 	bootstrap();
 }
 
@@ -55,7 +55,7 @@ function bootstrap() {
  * Check if a domain belongs to a mapped network
  *
  * @param stdClass|null $network Site object if already found, null otherwise
- * @param string $domain Domain we're looking for
+ * @param string        $domain Domain we're looking for
  * @return stdClass|null Site object if already found, null otherwise
  */
 function check_mappings_for_site( $site, $domain, $path, $path_segments ) {
@@ -93,7 +93,7 @@ function check_mappings_for_site( $site, $domain, $path, $path_segments ) {
  * Check if a domain has a network mapping available
  *
  * @param stdClass|null $network Site object if already found, null otherwise
- * @param string $domain Domain we're looking for
+ * @param string        $domain Domain we're looking for
  * @return stdClass|null Site object if already found, null otherwise
  */
 function check_mappings_for_network( $network, $domain ) {
@@ -153,10 +153,10 @@ function register_mapped_filters() {
 /**
  * Mangle the home URL to give our primary domain
  *
- * @param string $url The complete home URL including scheme and path.
- * @param string $path Path relative to the home URL. Blank string if no path is specified.
+ * @param string      $url The complete home URL including scheme and path.
+ * @param string      $path Path relative to the home URL. Blank string if no path is specified.
  * @param string|null $orig_scheme Scheme to give the home URL context. Accepts 'http', 'https', 'relative' or null.
- * @param int|null $site_id Blog ID, or null for the current blog.
+ * @param int|null    $site_id Blog ID, or null for the current blog.
  * @return string Mangled URL
  */
 function mangle_url( $url, $path, $orig_scheme, $site_id ) {
@@ -223,7 +223,7 @@ function get_possible_mapped_domains( $domain ) {
  * site.network.com should return site.network.com and network.com
  *
  * @param $domain - A url to explode, i.e. site.example.com
- * @param int $segments - Number of segments to explode and return
+ * @param int                          $segments - Number of segments to explode and return
  * @return array - Exploded urls
  */
 function explode_domain( $domain, $segments = 2 ) {
