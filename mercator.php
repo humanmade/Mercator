@@ -332,6 +332,7 @@ function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 
 	// Replace the domain
 	$domain = parse_url( $url, PHP_URL_HOST );
+	$domain = untrailingslashit( $domain . $current_mapping->get_site()->path );
 	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
 	$mangled = preg_replace( $regex, '${1}' . $current_mapping->get_domain(), $url );
 
