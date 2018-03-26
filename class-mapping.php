@@ -460,7 +460,7 @@ class Mapping {
 			// Check that the table exists...
 			if ( check_table() === 'created' ) {
 				// Table created, try again
-				return static::create( $site, $domain );
+				return static::create( $site, $domain, $active );
 			}
 
 			// Other error. We suppressed errors before, so we need to make sure
