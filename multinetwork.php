@@ -38,7 +38,7 @@ function run_preflight() {
 	// X: There's a problem in the cockpit!
 	// Y: What's that?
 	// X: It's the room at the front of the airplane where they control it, but
-	// that's not important right now.
+	//    that's not important right now.
 	bootstrap();
 }
 
