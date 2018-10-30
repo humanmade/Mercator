@@ -118,11 +118,9 @@ class Mapping {
 		}
 
 		// Set the new home and siteurl etc to the current mapping
-		update_blog_details(
-			$site->blog_id, array(
-				'domain' => $this->get_domain(),
-			)
-		);
+		update_blog_details( $site->blog_id, array(
+			'domain' => $this->get_domain(),
+		) );
 
 		// These are just a visual update for the site admin
 		$url = esc_url( $this->get_domain() );
