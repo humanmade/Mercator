@@ -110,13 +110,13 @@ function output_page_header( $id, $messages = array() ) {
 ?>
 
 <div class="wrap">
-	<h2 id="edit-site">
+	<h1 id="edit-site">
 
 		<?php echo $title_site_url_linked; ?>
 
 		<a href="<?php echo esc_url( $add_link ); ?>" class="add-new-h2"><?php echo esc_html_x( 'Add New', 'alias', 'mercator' ); ?></a>
-	</h2>
-	<h3 class="nav-tab-wrapper">
+	</h1>
+	<h2 class="nav-tab-wrapper wp-clearfix">
 <?php
 	$tabs = array(
 		'site-info'     => array(
@@ -141,7 +141,7 @@ foreach ( $tabs as $tab_id => $tab ) {
 	printf ( '<a href="%1$s" class="nav-tab %2$s">%3$s</a>', esc_url( $tab['url'] . '?id=' . $id ), esc_attr( $class ), esc_html( $tab['label'] ) );
 }
 ?>
-	</h3>
+	</h2>
 <?php
 
 	$allowed_tags = array(
