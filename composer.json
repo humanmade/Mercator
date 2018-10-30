@@ -2,7 +2,6 @@
 	"name": "humanmade/mercator",
 	"description": "WordPress multisite domain mapping for the modern era.",
 	"homepage": "https://github.com/humanmade/Mercator",
-	"version": "1.0.1",
 	"keywords": [
 		"wordpress"
 	],
