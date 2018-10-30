@@ -48,7 +48,7 @@ function run_preflight() {
 	}
 
 	// E: There's no reason to become alarmed, and we hope you'll enjoy the
-	// rest of your flight.
+	//    rest of your flight.
 	//
 	// E: By the way, is there anyone on board who knows how to fly a plane?
 	bootstrap();
