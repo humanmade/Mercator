@@ -195,7 +195,9 @@ class Mapping {
 			return false;
 		}
 
-		$where = array( 'id' => $this->get_id() );
+		$where = array(
+			'id' => $this->get_id(),
+		);
 		$where_format = array( '%d' );
 		$result = $wpdb->update( $wpdb->dmtable, $fields, $where, $formats, $where_format );
 		if ( empty( $result ) && ! empty( $wpdb->last_error ) ) {
@@ -232,7 +234,9 @@ class Mapping {
 	public function delete() {
 		global $wpdb;
 
-		$where = array( 'id' => $this->get_id() );
+		$where = array(
+			'id' => $this->get_id(),
+		);
 		$where_format = array( '%d' );
 		$result = $wpdb->delete( $wpdb->dmtable, $where, $where_format );
 		if ( empty( $result ) ) {
@@ -364,8 +368,7 @@ class Mapping {
 			$data = wp_cache_get( 'domain:' . $domain, 'domain_mapping' );
 			if ( ! empty( $data ) && $data !== 'notexists' ) {
 				return new static( $data );
-			}
-			elseif ( $data === 'notexists' ) {
+			} elseif ( $data === 'notexists' ) {
 				$not_exists++;
 			}
 		}
@@ -451,7 +454,11 @@ class Mapping {
 		$suppress = $wpdb->suppress_errors( true );
 		$result = $wpdb->insert(
 			$wpdb->dmtable,
-			array( 'blog_id' => $site, 'domain' => $domain, 'active' => $active ),
+			array(
+				'blog_id' => $site,
+				'domain' => $domain,
+				'active' => $active,
+			),
 			array( '%d', '%s', '%d' )
 		);
 		$wpdb->suppress_errors( $suppress );

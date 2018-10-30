@@ -39,8 +39,8 @@ class Network_Mapping {
 	/**
 	 * Constructor
 	 *
-	 * @param int $id Mapping ID
-	 * @param int $network Network ID
+	 * @param int   $id Mapping ID
+	 * @param int   $network Network ID
 	 * @param array $data Mapping data
 	 */
 	protected function __construct( $id, $network, $data ) {
@@ -173,7 +173,9 @@ class Network_Mapping {
 		);
 		$field_formats = array( '%s', '%s' );
 
-		$where = array( 'meta_id' => $this->get_id() );
+		$where = array(
+			'meta_id' => $this->get_id(),
+		);
 		$result = $wpdb->update( $wpdb->sitemeta, $fields, $where, $field_formats, array( '%d' ) );
 		if ( empty( $result ) && ! empty( $wpdb->last_error ) ) {
 			return new WP_Error( 'mercator.mapping.update_failed' );
@@ -197,7 +199,9 @@ class Network_Mapping {
 	public function delete() {
 		global $wpdb;
 
-		$where = array( 'meta_id' => $this->get_id() );
+		$where = array(
+			'meta_id' => $this->get_id(),
+		);
 		$where_format = array( '%d' );
 		$result = $wpdb->delete( $wpdb->sitemeta, $where, $where_format );
 		if ( empty( $result ) ) {
@@ -330,12 +334,11 @@ class Network_Mapping {
 			$row = wp_cache_get( 'domain:' . $key, 'network_mapping' );
 			if ( ! empty( $data ) && $data !== 'notexists' ) {
 				return static::to_instance( $row );
-			}
-			elseif ( $row === 'notexists' ) {
+			} elseif ( $row === 'notexists' ) {
 				$not_exists++;
 			}
 
-			$keys[] = $key; 
+			$keys[] = $key;
 		}
 		if ( $not_exists === count( $domains ) ) {
 			// Every domain we checked was found in the cache, but doesn't exist
@@ -403,6 +406,7 @@ class Network_Mapping {
 	 * Compare mapping rows by domain length
 	 *
 	 * Comparison callback for `usort`, matches result format of `strcmp`
+	 *
 	 * @param stdClass $a First row
 	 * @param stdClass $b Second row
 	 * @return int <0 if $a is "less" (shorter), 0 if equal, >0 if $a is "more" (longer)
@@ -467,7 +471,11 @@ class Network_Mapping {
 		);
 		$result = $wpdb->insert(
 			$wpdb->sitemeta,
-			array( 'site_id' => $network, 'meta_key' => $key, 'meta_value' => serialize( $data ) ),
+			array(
+				'site_id' => $network,
+				'meta_key' => $key,
+				'meta_value' => serialize( $data ),
+			),
 			array( '%d', '%s', '%s' )
 		);
 		if ( empty( $result ) ) {

@@ -14,7 +14,7 @@ class Mapping_Command extends WP_CLI_Command {
 	 * Display a list of mappings
 	 *
 	 * @param Mapping[] $mappings Mapping objects to show
-	 * @param array $options
+	 * @param array     $options
 	 */
 	protected function display( $mappings, $options ) {
 		$defaults = array(

@@ -58,14 +58,14 @@ function run_preflight() {
  * Attach SSO functions into WordPress.
  */
 function bootstrap() {
-	add_action( 'wp_head',          __NAMESPACE__ . '\\head_js', -100 );
+	add_action( 'wp_head', __NAMESPACE__ . '\\head_js', - 100 );
 	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\initialize_cookie_domain' );
 
 	// Callback handlers
-	add_action( 'wp_ajax_'        . ACTION_JS,        __NAMESPACE__ . '\\output_javascript_priv' );
-	add_action( 'wp_ajax_nopriv_' . ACTION_JS,        __NAMESPACE__ . '\\output_javascript_nopriv' );
-	add_action( 'wp_ajax_'        . ACTION_LOGIN,     __NAMESPACE__ . '\\handle_login' );
-	add_action( 'wp_ajax_nopriv_' . ACTION_LOGIN,     __NAMESPACE__ . '\\handle_login' );
+	add_action( 'wp_ajax_' . ACTION_JS, __NAMESPACE__ . '\\output_javascript_priv' );
+	add_action( 'wp_ajax_nopriv_' . ACTION_JS, __NAMESPACE__ . '\\output_javascript_nopriv' );
+	add_action( 'wp_ajax_' . ACTION_LOGIN, __NAMESPACE__ . '\\handle_login' );
+	add_action( 'wp_ajax_nopriv_' . ACTION_LOGIN, __NAMESPACE__ . '\\handle_login' );
 }
 
 /**
@@ -99,8 +99,7 @@ function initialize_cookie_domain() {
 function get_cookie_domain( $network ) {
 	if ( ! empty( $network->cookie_domain ) ) {
 		$cookie_domain = '.' . $network->cookie_domain;
-	}
-	else {
+	} else {
 		$cookie_domain = '.' . $network->domain;
 
 		// Remove WWW if the domain has it
@@ -115,7 +114,7 @@ function get_cookie_domain( $network ) {
 /**
  * Is this on the main domain for the network?
  *
- * @param string $domain Domain to check, defaults to the current host
+ * @param string   $domain Domain to check, defaults to the current host
  * @param stdClass $network Network object, defaults to the current network
  * @return boolean Is this the main domain?
  */
@@ -147,24 +146,20 @@ function is_main_domain( $domain = null, $network = null ) {
 	// INTERNAL NOTE: While I typically hate this pattern of nested-ifs, and I'd
 	// typically change this to return-early, it makes it more complicated to
 	// document the filter. Sorry.
-
 	if ( $cookie_domain_length > strlen( $domain ) ) {
 		// Check if the domain is $cookie_domain without the initial .
 		// (i.e. are we on the base domain?)
 		if ( substr( $cookie_domain, 0, 1 ) === '.' && substr( $cookie_domain, 1 ) === $domain ) {
 			$is_main = true;
-		}
-		else {
+		} else {
 			// Cookie domain is longer than the domain, and not the base domain.
 			// Boop.
 			$is_main = false;
 		}
-	}
-	elseif ( substr( $domain, -$cookie_domain_length ) !== $cookie_domain ) {
+	} elseif ( substr( $domain, -$cookie_domain_length ) !== $cookie_domain ) {
 		// Domain isn't a strict prefix of the cookie domain
 		$is_main = false;
-	}
-	else {
+	} else {
 		// Welcome to the main domain.
 		$is_main = true;
 	}
@@ -190,14 +185,16 @@ function get_main_site( $network_id = null ) {
 
 	if ( empty( $network_id ) ) {
 		$network = $GLOBALS['current_site'];
-	}
-	else {
+	} else {
 		$network = wp_get_network( $network_id );
 	}
 
 	if ( ! $primary_id = wp_cache_get( 'network:' . $network->id . ':main_site', 'site-options' ) ) {
-		$primary_id = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM $wpdb->blogs WHERE domain = %s AND path = %s",
-			$network->domain, $network->path ) );
+		$primary_id = $wpdb->get_var( $wpdb->prepare(
+			"SELECT blog_id FROM $wpdb->blogs WHERE domain = %s AND path = %s",
+			$network->domain, 
+			$network->path
+		) );
 		wp_cache_add( 'network:' . $network->id . ':main_site', $primary_id, 'site-options' );
 	}
 
@@ -206,8 +203,9 @@ function get_main_site( $network_id = null ) {
 
 /**
  * Get an SSO action URL
+ *
  * @param string $action SSO action to perform (ACTION_JS/ACTION_LOGIN)
- * @param array $args Arguments to be added to the URL (unencoded)
+ * @param array  $args Arguments to be added to the URL (unencoded)
  *
  * @return string URL for the given action
  */
@@ -251,7 +249,7 @@ function create_shared_nonce( $action ) {
  * Uses nonces not linked to the current user. See {@see create_shared_nonce()}
  * for more about why this exists.
  *
- * @param string $nonce Nonce that was used in the form to verify
+ * @param string     $nonce Nonce that was used in the form to verify
  * @param string|int $action Should give context to what is taking place and be the same when nonce was created.
  * @return bool Whether the nonce check passed or failed.
  */
@@ -263,7 +261,7 @@ function verify_shared_nonce( $nonce, $action ) {
 	$i = wp_nonce_tick();
 
 	// Nonce generated 0-12 hours ago
-	$expected = substr( wp_hash( $i . '|' . $action, 'nonce'), -12, 10 );
+	$expected = substr( wp_hash( $i . '|' . $action, 'nonce' ), -12, 10 );
 	if ( hash_equals( $expected, $nonce ) ) {
 		return 1;
 	}
@@ -325,13 +323,13 @@ function output_javascript_priv() {
 	$url = get_action_url( ACTION_LOGIN, $args );
 ?>
 window.MercatorSSO = function() {
-	if ( typeof document.location.host != 'undefined' && document.location.host != '<?php echo addslashes( $host ) ?>' ) {
+	if ( typeof document.location.host != 'undefined' && document.location.host != '<?php echo addslashes( esc_js( $host ) ); ?>' ) {
 		return;
 	}
 
 	document.write('<body>');
 	document.body.style.display='none';
-	window.location = '<?php echo addslashes( $url ) ?>&fragment='+encodeURIComponent(document.location.hash);
+	window.location = '<?php echo addslashes( esc_js( $url ) ); ?>&fragment='+encodeURIComponent(document.location.hash);
 };
 <?php
 
@@ -357,12 +355,12 @@ function head_js() {
 
 	$script_url = get_action_url( ACTION_JS, $args );
 ?>
-	<script src="<?php echo esc_url( $script_url ) ?>"></script>
+	<script src="<?php echo esc_url( $script_url ); ?>"></script>
 	<script type="text/javascript">
 		/* <![CDATA[ */
 			if ( 'function' === typeof MercatorSSO ) {
-				document.cookie = "<?php echo esc_js( TEST_COOKIE ) ?>=WP Cookie check; path=/";
-				if ( document.cookie.match( /(;|^)\s*<?php echo esc_js( TEST_COOKIE ) ?>\=/ ) ) {
+				document.cookie = "<?php echo esc_js( TEST_COOKIE ); ?>=WP Cookie check; path=/";
+				if ( document.cookie.match( /(;|^)\s*<?php echo esc_js( TEST_COOKIE ); ?>\=/ ) ) {
 					MercatorSSO();
 				}
 			}
@@ -378,8 +376,7 @@ function handle_login() {
 	// Are we the central server?
 	if ( is_main_domain() ) {
 		return handle_login_request();
-	}
-	else {
+	} else {
 		return handle_login_response();
 	}
 }
@@ -436,7 +433,7 @@ function handle_login_request() {
  * Accessing this URL will give the user access to the site. Make sure the user
  * is definitely authenticated, as this will log them in.
  *
- * @param int $user User ID
+ * @param int   $user User ID
  * @param array $args {
  *     Arguments for the login URL
  *
@@ -464,7 +461,10 @@ function get_login_url( $user, $args ) {
 	$key = wp_hash( serialize( $token_data ) );
 	$mid = add_user_meta( $user, 'mercator_sso_' . $key, $token_data );
 	if ( empty( $mid ) ) {
-		return new WP_Error( 'mercator.sso.meta_failed', __( 'Could not save token to database', 'mercator' ), array( 'data' => $token_data, 'key' => $key ) );
+		return new WP_Error( 'mercator.sso.meta_failed', __( 'Could not save token to database', 'mercator' ), array(
+			'data' => $token_data,
+			'key' => $key,
+		) );
 	}
 
 	$url_args = array(

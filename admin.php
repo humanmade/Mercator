@@ -33,7 +33,7 @@ function add_site_list_column( $columns ) {
  * Output the site list column
  *
  * @param string $column Column ID
- * @param int $site_id Site ID
+ * @param int    $site_id Site ID
  */
 function output_site_list_column( $column, $site_id ) {
 	switch ( $column ) {
@@ -70,10 +70,10 @@ function maybe_output_site_tab() {
 		return;
 	}
 
-	$class = ( ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] === 'mercator-aliases' ) ? ' nav-tab-active' : '';
+	$class = ( ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], array( 'mercator-aliases', 'mercator-edit' ), true ) ) ? ' nav-tab-active' : '';
 
 ?>
-	<span id="mercator-aliases-nav-link" class="hide-if-no-js"><a href="<?php echo network_admin_url( 'admin.php?action=mercator-aliases' ) . '&id=' . $id ?>" class="nav-tab<?php echo $class ?>"><?php esc_html_e( 'Aliases', 'mercator' ) ?></a></span>
+	<span id="mercator-aliases-nav-link" class="hide-if-no-js"><a href="<?php echo esc_url( network_admin_url( 'admin.php?action=mercator-aliases' ) . '&id=' . $id ); ?>" class="nav-tab<?php echo $class; ?>"><?php esc_html_e( 'Aliases', 'mercator' ); ?></a></span>
 	<script>jQuery(function ($) {
 		$( '#mercator-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) );
 	});</script>
@@ -84,19 +84,22 @@ function maybe_output_site_tab() {
 /**
  * Output the admin page header
  *
- * @param int $id Site ID
+ * @param int   $id Site ID
  * @param array $messages Messages to display
  */
 function output_page_header( $id, $messages = array() ) {
+	global $pagenow;
+
 	$site_url_no_http = preg_replace( '#^http(s)?://#', '', get_blogaddress_by_id( $id ) );
-	$title_site_url_linked = sprintf( __('Aliases: <a href="%1$s">%2$s</a>'), get_blogaddress_by_id( $id ), $site_url_no_http );
+	$title_site_link = sprintf( '<a href="%1$s">%2$s</a>', get_blogaddress_by_id( $id ), $site_url_no_http );
+	$title_site_url_linked = sprintf( __( 'Aliases: %s', 'mercator' ), $title_site_link );
 
 	// Load the page header
 	global $title, $parent_file, $submenu_file;
-	$title = sprintf( __( 'Aliases: %s', 'mercator' ), $site_url_no_http );
+	$title = sprintf( esc_html__( 'Aliases: %s', 'mercator' ), $site_url_no_http );
 	$parent_file = 'sites.php';
 	$submenu_file = 'sites.php';
-	require_once(ABSPATH . 'wp-admin/admin-header.php');
+	require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
 	$add_link = add_query_arg(
 		array(
@@ -108,30 +111,61 @@ function output_page_header( $id, $messages = array() ) {
 ?>
 
 <div class="wrap">
-	<h2 id="edit-site">
+	<h1 id="edit-site">
+		<?php 
+			echo wp_kses( $title_site_url_linked, array(
+				'a' => array(
+					'href' => array(),
+				),
+			) );
+		?>
 
-		<?php echo $title_site_url_linked ?>
-
-		<a href="<?php echo esc_url( $add_link ) ?>" class="add-new-h2"><?php echo esc_html_x( 'Add New', 'alias', 'mercator' ) ?></a>
-	</h2>
-	<h3 class="nav-tab-wrapper">
+		<a href="<?php echo esc_url( $add_link ); ?>" class="add-new-h2"><?php echo esc_html_x( 'Add New', 'alias', 'mercator' ); ?></a>
+	</h1>
+	<h2 class="nav-tab-wrapper wp-clearfix">
 <?php
 	$tabs = array(
-		'site-info'     => array( 'label' => __( 'Info' ),     'url' => 'site-info.php'     ),
-		'site-users'    => array( 'label' => __( 'Users' ),    'url' => 'site-users.php'    ),
-		'site-themes'   => array( 'label' => __( 'Themes' ),   'url' => 'site-themes.php'   ),
-		'site-settings' => array( 'label' => __( 'Settings' ), 'url' => 'site-settings.php' ),
+		'site-info'     => array(
+			'label' => __( 'Info' ),
+			'url' => 'site-info.php',
+		),
+		'site-users'    => array(
+			'label' => __( 'Users' ),
+			'url' => 'site-users.php',
+		),
+		'site-themes'   => array(
+			'label' => __( 'Themes' ),
+			'url' => 'site-themes.php',
+		),
+		'site-settings' => array(
+			'label' => __( 'Settings' ),
+			'url' => 'site-settings.php',
+		),
 	);
+
 	foreach ( $tabs as $tab_id => $tab ) {
-		$class = ( $tab['url'] == $pagenow ) ? ' nav-tab-active' : '';
-		echo '<a href="' . $tab['url'] . '?id=' . $id .'" class="nav-tab' . $class . '">' . esc_html( $tab['label'] ) . '</a>';
+		$class = ( $pagenow === $tab['url'] ) ? ' nav-tab-active' : '';
+		printf ( '<a href="%1$s" class="nav-tab %2$s">%3$s</a>', esc_url( $tab['url'] . '?id=' . $id ), esc_attr( $class ), esc_html( $tab['label'] ) );
 	}
 ?>
-	</h3>
+	</h2>
 <?php
+
+	$allowed_tags = array(
+		'a' => array(
+			'class'  => array(),
+			'href'   => array(),
+		),
+		'strong' => array(
+			'class' => array(),
+		),
+		'code' => array(),
+	);
+
 	if ( ! empty( $messages ) ) {
-		foreach ( $messages as $msg )
-			echo '<div id="message" class="updated"><p>' . $msg . '</p></div>';
+		foreach ( $messages as $msg ) {
+			echo '<div id="message" class="updated"><p>' . wp_kses( $msg, $allowed_tags ) . '</p></div>';
+		}
 	}
 }
 
@@ -141,7 +175,7 @@ function output_page_header( $id, $messages = array() ) {
 function output_page_footer() {
 	echo '</div>';
 
-	require_once(ABSPATH . 'wp-admin/admin-footer.php');
+	require_once( ABSPATH . 'wp-admin/admin-footer.php' );
 }
 
 /**
@@ -150,15 +184,16 @@ function output_page_footer() {
  * Handles bulk actions for the list page. Redirects back to itself after
  * processing, and exits.
  *
- * @param int $id Site ID
+ * @param int    $id Site ID
  * @param string $action Action to perform
  */
 function handle_list_page_submit( $id, $action ) {
 	check_admin_referer( 'mercator-aliases-bulk-' . $id );
 
 	$sendback = remove_query_arg( array( 'did_action', 'mappings', '_wpnonce' ), wp_get_referer() );
-	if ( ! $sendback )
+	if ( ! $sendback ) {
 		$sendback = admin_url( $parent_file );
+	}
 
 	$mappings = empty( $_REQUEST['mappings'] ) ? array() : (array) $_REQUEST['mappings'];
 	$mappings = array_map( 'absint', $mappings );
@@ -236,14 +271,16 @@ function output_list_page() {
 
 	$id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
 
-	if ( ! $id )
-		wp_die( __('Invalid site ID.') );
+	if ( ! $id ) {
+		wp_die( esc_html__( 'Invalid site ID.' ) );
+	}
 
 	$id = absint( $id );
 
 	$details = get_blog_details( $id );
-	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id )
-		wp_die( __( 'You do not have permission to access this page.' ) );
+	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id ) {
+		wp_die( esc_html__( 'You do not have permission to access this page.' ) );
+	}
 
 	$wp_list_table = new Alias_List_Table( array(
 		'site_id' => $id,
@@ -280,13 +317,11 @@ function output_list_page() {
 			if ( $did_action !== 'delete' ) {
 				$mapping = Mapping::get( $mappings[0] );
 				$domain = $mapping->get_domain();
-			}
-			else {
+			} else {
 				$domain = empty( $_REQUEST['domains'] ) ? array() : $_REQUEST['domains'][0];
 			}
 			$placeholder = '<code>' . $domain . '</code>';
-		}
-		else {
+		} else {
 			// Note: we still use _n for languages which have special cases on
 			// e.g. 3, 5, 10, etc
 			$bulk_messages = array(
@@ -319,7 +354,7 @@ function output_list_page() {
 /**
  * Validate alias parameters
  *
- * @param array $params Raw input parameters
+ * @param array   $params Raw input parameters
  * @param boolean $check_permission Should we check that the user can edit the network?
  * @return array|WP_Error Validated parameters on success, WP_Error otherwise
  */
@@ -368,8 +403,7 @@ function handle_edit_page_submit( $id, $mapping ) {
 	if ( empty( $mapping ) ) {
 		$did_action = 'add';
 		check_admin_referer( 'mercator-add-' . $id );
-	}
-	else {
+	} else {
 		$did_action = 'edit';
 		check_admin_referer( 'mercator-edit-' . $mapping->get_id() );
 	}
@@ -387,9 +421,8 @@ function handle_edit_page_submit( $id, $mapping ) {
 	}
 	if ( empty( $mapping ) ) {
 		// Create the actual mapping
-		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );	
-	}
-	else {
+		$result = $mapping = Mapping::create( $params['site'], $params['domain'], $params['active'] );
+	} else {
 		// Update our existing
 		$result = $mapping->update( $params );
 	}
@@ -423,14 +456,16 @@ function output_edit_page() {
 
 	$id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
 
-	if ( ! $id )
-		wp_die( __('Invalid site ID.') );
+	if ( ! $id ) {
+		wp_die( esc_html__( 'Invalid site ID.' ) );
+	}
 
 	$id = absint( $id );
 
 	$details = get_blog_details( $id );
-	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id )
-		wp_die( __( 'You do not have permission to access this page.' ) );
+	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id ) {
+		wp_die( esc_html__( 'You do not have permission to access this page.' ) );
+	}
 
 	// Are we editing?
 	$mapping = null;
@@ -439,7 +474,7 @@ function output_edit_page() {
 		$mapping_id = absint( $_REQUEST['mapping'] );
 		$mapping = Mapping::get( $mapping_id );
 		if ( is_wp_error( $mapping ) || empty( $mapping ) ) {
-			wp_die( __( 'Invalid alias ID.', 'mercator' ) );
+			wp_die( esc_html__( 'Invalid alias ID.', 'mercator' ) );
 		}
 
 		$form_action = network_admin_url( 'admin.php?action=mercator-edit' );
@@ -456,51 +491,49 @@ function output_edit_page() {
 	if ( empty( $mapping ) || ! empty( $_POST['_wpnonce'] ) ) {
 		$domain = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
 		$active = ! empty( $_POST['active'] );
-	}
-	else {
+	} else {
 		$domain = $mapping->get_domain();
 		$active = $mapping->is_active();
 	}
 
 ?>
-	<form method="post" action="<?php echo esc_url( $form_action ) ?>">
+	<form method="post" action="<?php echo esc_url( $form_action ); ?>">
 		<table class="form-table">
 			<tr>
 				<th scope="row">
-					<label for="mercator-domain"><?php echo esc_html_x( 'Domain Name', 'field name', 'mercator' ) ?></label>
+					<label for="mercator-domain"><?php echo esc_html_x( 'Domain Name', 'field name', 'mercator' ); ?></label>
 				</th>
 				<td>
 					<input type="text" class="regular-text code"
 						name="domain" id="mercator-domain"
-						value="<?php echo esc_attr( $domain ) ?>" />
+						value="<?php echo esc_attr( $domain ); ?>" />
 				</td>
 			</tr>
 			<tr>
 				<th scope="row">
-					<?php echo esc_html_x( 'Active', 'field name', 'mercator' ) ?>
+					<?php echo esc_html_x( 'Active', 'field name', 'mercator' ); ?>
 				</th>
 				<td>
 					<label>
 						<input type="checkbox"
-							name="active" <?php checked( $active ) ?> />
+							name="active" <?php checked( $active ); ?> />
 
-						<?php esc_html_e( 'Mark alias as active', 'mercator' ) ?>
+						<?php esc_html_e( 'Mark alias as active', 'mercator' ); ?>
 					</label>
 				</td>
 			</tr>
 		</table>
 
-		<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
+		<input type="hidden" name="id" value="<?php echo esc_attr( $id ); ?>" />
 		<?php
 
 		if ( empty( $mapping ) ) {
 			wp_nonce_field( 'mercator-add-' . $id );
-			submit_button( __( 'Add Alias', 'mercator' ) );
-		}
-		else {
+			submit_button( esc_html__( 'Add Alias', 'mercator' ) );
+		} else {
 			echo '<input type="hidden" name="mapping" value="' . esc_attr( $mapping->get_id() ) . '" />';
 			wp_nonce_field( 'mercator-edit-' . $mapping->get_id() );
-			submit_button( __( 'Save Alias', 'mercator' ) );
+			submit_button( esc_html__( 'Save Alias', 'mercator' ) );
 		}
 
 		?>
@@ -513,9 +546,9 @@ function output_edit_page() {
 /**
  * Add note to sunrise.php on dropins list about Mercator
  *
- * @param array $meta Meta links
+ * @param array  $meta Meta links
  * @param string $file Plugin filename (sunrise.php for sunrise)
- * @param array $data Data from the plugin header
+ * @param array  $data Data from the plugin header
  * @param string $status Status of the plugin
  * @return array Modified meta links
  */
@@ -524,14 +557,19 @@ function output_sunrise_dropin_note( $meta, $file, $data, $status ) {
 		return $meta;
 	}
 
-	$note = '<em>' . sprintf(
-		__( 'Enhanced by <a href="%s" title="%s">Mercator</a>', 'mercator' ),
+	$note = '<em>' . wp_kses( sprintf(
+		__( 'Enhanced by <a href="%1$s" title="%2$s">Mercator</a>', 'mercator' ),
 		'https://github.com/humanmade/Mercator',
 		sprintf(
-			__( 'Version %s', 'mercator' ),
+			esc_html__( 'Version %s', 'mercator' ),
 			\Mercator\VERSION
 		)
-	) . '</em>';
+	), array(
+		'a' => array(
+			'href' => array(),
+			'title' => array(),
+		),
+	) ) . '</em>';
 	array_unshift( $meta, $note );
 	return $meta;
 }
