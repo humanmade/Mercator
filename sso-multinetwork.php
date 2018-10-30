@@ -60,7 +60,7 @@ function run_preflight() {
 	// S : Mayday! Mayday!
 	// Mc: What the heck is that?
 	// J : Why, that's the Russian New Year. We can have a parade and serve hot
-	// hors d'oeuvres...
+	//     hors d'oeuvres...
 	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\bootstrap' );
 }
 
