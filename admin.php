@@ -88,6 +88,8 @@ function maybe_output_site_tab() {
  * @param array $messages Messages to display
  */
 function output_page_header( $id, $messages = array() ) {
+	global $pagenow;
+
 	$site_url_no_http = preg_replace( '#^http(s)?://#', '', get_blogaddress_by_id( $id ) );
 	$title_site_url_linked = sprintf( __( 'Aliases: <a href="%1$s">%2$s</a>' ), get_blogaddress_by_id( $id ), $site_url_no_http );
 
@@ -141,11 +143,22 @@ foreach ( $tabs as $tab_id => $tab ) {
 ?>
 	</h3>
 <?php
-if ( ! empty( $messages ) ) {
-	foreach ( $messages as $msg ) {
-		echo '<div id="message" class="updated"><p>' . esc_html( $msg ) . '</p></div>';
+
+	$allowed_tags = array(
+		'a' => array(
+			'class'  => array(),
+			'href'   => array(),
+		),
+		'strong' => array(
+			'class' => array(),
+		),
+		'code' => array(),
+	);
+	if ( ! empty( $messages ) ) {
+		foreach ( $messages as $msg ) {
+			echo '<div id="message" class="updated"><p>' . wp_kses( $msg, $allowed_tags ) . '</p></div>';
+		}
 	}
-}
 }
 
 /**
