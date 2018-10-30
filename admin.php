@@ -91,11 +91,12 @@ function output_page_header( $id, $messages = array() ) {
 	global $pagenow;
 
 	$site_url_no_http = preg_replace( '#^http(s)?://#', '', get_blogaddress_by_id( $id ) );
-	$title_site_url_linked = sprintf( __( 'Aliases: <a href="%1$s">%2$s</a>' ), get_blogaddress_by_id( $id ), $site_url_no_http );
+	$title_site_link = sprintf( '<a href="%1$s">%2$s</a>', get_blogaddress_by_id( $id ), $site_url_no_http );
+	$title_site_url_linked = sprintf( __( 'Aliases: %s', 'mercator' ), $title_site_link );
 
 	// Load the page header
 	global $title, $parent_file, $submenu_file;
-	$title = sprintf( __( 'Aliases: %s', 'mercator' ), $site_url_no_http );
+	$title = sprintf( esc_html__( 'Aliases: %s', 'mercator' ), $site_url_no_http );
 	$parent_file = 'sites.php';
 	$submenu_file = 'sites.php';
 	require_once( ABSPATH . 'wp-admin/admin-header.php' );
@@ -111,8 +112,13 @@ function output_page_header( $id, $messages = array() ) {
 
 <div class="wrap">
 	<h1 id="edit-site">
-
-		<?php echo $title_site_url_linked; ?>
+		<?php 
+			echo wp_kses( $title_site_url_linked, array(
+				'a' => array(
+					'href' => array(),
+				),
+			) );
+		?>
 
 		<a href="<?php echo esc_url( $add_link ); ?>" class="add-new-h2"><?php echo esc_html_x( 'Add New', 'alias', 'mercator' ); ?></a>
 	</h1>
@@ -136,10 +142,11 @@ function output_page_header( $id, $messages = array() ) {
 			'url' => 'site-settings.php',
 		),
 	);
-foreach ( $tabs as $tab_id => $tab ) {
-	$class = ( $pagenow === $tab['url'] ) ? ' nav-tab-active' : '';
-	printf ( '<a href="%1$s" class="nav-tab %2$s">%3$s</a>', esc_url( $tab['url'] . '?id=' . $id ), esc_attr( $class ), esc_html( $tab['label'] ) );
-}
+
+	foreach ( $tabs as $tab_id => $tab ) {
+		$class = ( $pagenow === $tab['url'] ) ? ' nav-tab-active' : '';
+		printf ( '<a href="%1$s" class="nav-tab %2$s">%3$s</a>', esc_url( $tab['url'] . '?id=' . $id ), esc_attr( $class ), esc_html( $tab['label'] ) );
+	}
 ?>
 	</h2>
 <?php
@@ -154,6 +161,7 @@ foreach ( $tabs as $tab_id => $tab ) {
 		),
 		'code' => array(),
 	);
+
 	if ( ! empty( $messages ) ) {
 		foreach ( $messages as $msg ) {
 			echo '<div id="message" class="updated"><p>' . wp_kses( $msg, $allowed_tags ) . '</p></div>';
@@ -274,11 +282,9 @@ function output_list_page() {
 		wp_die( esc_html__( 'You do not have permission to access this page.' ) );
 	}
 
-	$wp_list_table = new Alias_List_Table(
-		array(
-			'site_id' => $id,
-		)
-	);
+	$wp_list_table = new Alias_List_Table( array(
+		'site_id' => $id,
+	) );
 
 	$messages = array();
 
@@ -551,14 +557,19 @@ function output_sunrise_dropin_note( $meta, $file, $data, $status ) {
 		return $meta;
 	}
 
-	$note = '<em>' . sprintf(
+	$note = '<em>' . wp_kses( sprintf(
 		__( 'Enhanced by <a href="%1$s" title="%2$s">Mercator</a>', 'mercator' ),
-		esc_url( 'https://github.com/humanmade/Mercator' ),
+		'https://github.com/humanmade/Mercator',
 		sprintf(
-			__( 'Version %s', 'mercator' ),
-			esc_html( \Mercator\VERSION )
+			esc_html__( 'Version %s', 'mercator' ),
+			\Mercator\VERSION
 		)
-	) . '</em>';
+	), array(
+		'a' => array(
+			'href' => array(),
+			'title' => array(),
+		),
+	) ) . '</em>';
 	array_unshift( $meta, $note );
 	return $meta;
 }
