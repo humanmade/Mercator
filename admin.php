@@ -70,7 +70,7 @@ function maybe_output_site_tab() {
 		return;
 	}
 
-	$class = ( ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] === 'mercator-aliases' ) ? ' nav-tab-active' : '';
+	$class = ( ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], array( 'mercator-aliases', 'mercator-edit' ), true ) ) ? ' nav-tab-active' : '';
 
 ?>
 	<span id="mercator-aliases-nav-link" class="hide-if-no-js"><a href="<?php echo esc_url( network_admin_url( 'admin.php?action=mercator-aliases' ) . '&id=' . $id ); ?>" class="nav-tab<?php echo $class; ?>"><?php esc_html_e( 'Aliases', 'mercator' ); ?></a></span>
@@ -138,7 +138,7 @@ function output_page_header( $id, $messages = array() ) {
 	);
 foreach ( $tabs as $tab_id => $tab ) {
 	$class = ( $pagenow === $tab['url'] ) ? ' nav-tab-active' : '';
-	echo '<a href="' . $tab['url'] . '?id=' . $id . '" class="nav-tab' . esc_attr( $class ) . '">' . esc_html( $tab['label'] ) . '</a>';
+	printf ( '<a href="%1$s" class="nav-tab %2$s">%3$s</a>', esc_url( $tab['url'] . '?id=' . $id ), esc_attr( $class ), esc_html( $tab['label'] ) );
 }
 ?>
 	</h3>
@@ -553,10 +553,10 @@ function output_sunrise_dropin_note( $meta, $file, $data, $status ) {
 
 	$note = '<em>' . sprintf(
 		__( 'Enhanced by <a href="%1$s" title="%2$s">Mercator</a>', 'mercator' ),
-		'https://github.com/humanmade/Mercator',
+		esc_url( 'https://github.com/humanmade/Mercator' ),
 		sprintf(
 			__( 'Version %s', 'mercator' ),
-			\Mercator\VERSION
+			esc_html( \Mercator\VERSION )
 		)
 	) . '</em>';
 	array_unshift( $meta, $note );

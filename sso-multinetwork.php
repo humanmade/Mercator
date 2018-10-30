@@ -48,7 +48,7 @@ function run_preflight() {
 	 * single-sign-on to work correctly across multiple networks, this must be
 	 * defined as a static value.
 	 */
-		$skip_cookiehash_check = apply_filters( 'mercator.sso.multinetwork.skip_cookiehash_check', false );
+	$skip_cookiehash_check = apply_filters( 'mercator.sso.multinetwork.skip_cookiehash_check', false );
 	if ( ! defined( 'COOKIEHASH' ) ) {
 		// status_header( 500 );
 		// header( 'X-Mercator: COOKIEHASH' );

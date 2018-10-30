@@ -222,9 +222,9 @@ function get_possible_mapped_domains( $domain ) {
  *
  * site.network.com should return site.network.com and network.com
  *
- * @param $domain - A url to explode, i.e. site.example.com
- * @param int                          $segments - Number of segments to explode and return
- * @return array - Exploded urls
+ * @param  string $domain   - A url to explode, i.e. site.example.com
+ * @param  int    $segments - Number of segments to explode and return
+ * @return array  $domains  - Exploded urls
  */
 function explode_domain( $domain, $segments = 2 ) {
 

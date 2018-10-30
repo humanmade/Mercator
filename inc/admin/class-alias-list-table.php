@@ -132,11 +132,11 @@ class Alias_List_Table extends WP_List_Table {
 	 * @return string|bool The action name or False if no action was selected
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['bulk_action'] ) && -1 != $_REQUEST['bulk_action'] ) {
+		if ( isset( $_REQUEST['bulk_action'] ) && -1 !== (int) $_REQUEST['bulk_action'] ) {
 			return $_REQUEST['bulk_action'];
 		}
 
-		if ( isset( $_REQUEST['bulk_action2'] ) && -1 != $_REQUEST['bulk_action2'] ) {
+		if ( isset( $_REQUEST['bulk_action2'] ) && -1 !== (int) $_REQUEST['bulk_action2'] ) {
 			return $_REQUEST['bulk_action2'];
 		}
 

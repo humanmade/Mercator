@@ -58,14 +58,14 @@ function run_preflight() {
  * Attach SSO functions into WordPress.
  */
 function bootstrap() {
-	add_action( 'wp_head',          __NAMESPACE__ . '\\head_js', -100 );
+	add_action( 'wp_head', __NAMESPACE__ . '\\head_js', - 100 );
 	add_action( 'muplugins_loaded', __NAMESPACE__ . '\\initialize_cookie_domain' );
 
 	// Callback handlers
-	add_action( 'wp_ajax_' . ACTION_JS,        __NAMESPACE__ . '\\output_javascript_priv' );
-	add_action( 'wp_ajax_nopriv_' . ACTION_JS,        __NAMESPACE__ . '\\output_javascript_nopriv' );
-	add_action( 'wp_ajax_' . ACTION_LOGIN,     __NAMESPACE__ . '\\handle_login' );
-	add_action( 'wp_ajax_nopriv_' . ACTION_LOGIN,     __NAMESPACE__ . '\\handle_login' );
+	add_action( 'wp_ajax_' . ACTION_JS, __NAMESPACE__ . '\\output_javascript_priv' );
+	add_action( 'wp_ajax_nopriv_' . ACTION_JS, __NAMESPACE__ . '\\output_javascript_nopriv' );
+	add_action( 'wp_ajax_' . ACTION_LOGIN, __NAMESPACE__ . '\\handle_login' );
+	add_action( 'wp_ajax_nopriv_' . ACTION_LOGIN, __NAMESPACE__ . '\\handle_login' );
 }
 
 /**
@@ -324,13 +324,13 @@ function output_javascript_priv() {
 	$url = get_action_url( ACTION_LOGIN, $args );
 ?>
 window.MercatorSSO = function() {
-	if ( typeof document.location.host != 'undefined' && document.location.host != '<?php echo addslashes( esc_url( $host ) ); ?>' ) {
+	if ( typeof document.location.host != 'undefined' && document.location.host != '<?php echo addslashes( esc_js( $host ) ); ?>' ) {
 		return;
 	}
 
 	document.write('<body>');
 	document.body.style.display='none';
-	window.location = '<?php echo addslashes( esc_url( $url ) ); ?>&fragment='+encodeURIComponent(document.location.hash);
+	window.location = '<?php echo addslashes( esc_js( $url ) ); ?>&fragment='+encodeURIComponent(document.location.hash);
 };
 <?php
 
