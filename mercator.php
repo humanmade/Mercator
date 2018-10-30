@@ -117,11 +117,9 @@ function startup() {
  * @param string $message Message to use in the warning.
  */
 function warn_with_message( $message ) {
-	add_action(
-		'all_admin_notices', function () use ( $message ) {
-			echo '<div class="error"><p>' . esc_html( $message ) . '</p></div>';
-		}
-	);
+	add_action( 'all_admin_notices', function () use ( $message ) {
+		echo '<div class="error"><p>' . esc_html( $message ) . '</p></div>';
+	} );
 }
 
 /**
