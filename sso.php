@@ -190,12 +190,11 @@ function get_main_site( $network_id = null ) {
 	}
 
 	if ( ! $primary_id = wp_cache_get( 'network:' . $network->id . ':main_site', 'site-options' ) ) {
-		$primary_id = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT blog_id FROM $wpdb->blogs WHERE domain = %s AND path = %s",
-				$network->domain, $network->path
-			)
-		);
+		$primary_id = $wpdb->get_var( $wpdb->prepare(
+			"SELECT blog_id FROM $wpdb->blogs WHERE domain = %s AND path = %s",
+			$network->domain, 
+			$network->path
+		) );
 		wp_cache_add( 'network:' . $network->id . ':main_site', $primary_id, 'site-options' );
 	}
 
@@ -462,12 +461,10 @@ function get_login_url( $user, $args ) {
 	$key = wp_hash( serialize( $token_data ) );
 	$mid = add_user_meta( $user, 'mercator_sso_' . $key, $token_data );
 	if ( empty( $mid ) ) {
-		return new WP_Error(
-			'mercator.sso.meta_failed', __( 'Could not save token to database', 'mercator' ), array(
-				'data' => $token_data,
-				'key' => $key,
-			)
-		);
+		return new WP_Error( 'mercator.sso.meta_failed', __( 'Could not save token to database', 'mercator' ), array(
+			'data' => $token_data,
+			'key' => $key,
+		) );
 	}
 
 	$url_args = array(
@@ -505,19 +502,17 @@ function handle_login_response() {
 	}
 
 	// Fetch using the token
-	$users = get_users(
-		array(
-			'meta_key'     => 'mercator_sso_' . $args['key'],
+	$users = get_users( array(
+		'meta_key'     => 'mercator_sso_' . $args['key'],
 
-			// Check that the value exists (WP doesn't support EXISTS, so use a
-			// dummy value that will never match)
-			'meta_value'   => 'dummy_value',
-			'meta_compare' => '!=',
+		// Check that the value exists (WP doesn't support EXISTS, so use a
+		// dummy value that will never match)
+		'meta_value'   => 'dummy_value',
+		'meta_compare' => '!=',
 
-			// Skip capability check
-			'blog_id'      => 0,
-		)
-	);
+		// Skip capability check
+		'blog_id'      => 0,
+	) );
 	if ( empty( $users ) ) {
 		status_header( 404 );
 		exit;
