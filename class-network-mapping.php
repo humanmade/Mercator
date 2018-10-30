@@ -395,11 +395,9 @@ class Network_Mapping {
 		}
 
 		// Grab the longest domain we can
-		usort(
-			$mapped, function( $a, $b ) {
-				return strlen( $a->get_domain() ) - strlen( $b->get_domain() );
-			}
-		);
+		usort( $mapped, function( $a, $b ) {
+			return strlen( $a->get_domain() ) - strlen( $b->get_domain() );
+		} );
 
 		return array_pop( $mapped );
 	}
