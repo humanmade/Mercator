@@ -63,7 +63,6 @@ function bootstrap() {
 
 	// Callback handlers
 	add_action( 'wp_ajax_' . ACTION_JS, __NAMESPACE__ . '\\output_javascript_priv' );
-	add_action( 'wp_ajax_nopriv_' . ACTION_JS, __NAMESPACE__ . '\\output_javascript_nopriv' );
 	add_action( 'wp_ajax_' . ACTION_LOGIN, __NAMESPACE__ . '\\handle_login' );
 	add_action( 'wp_ajax_nopriv_' . ACTION_LOGIN, __NAMESPACE__ . '\\handle_login' );
 }
@@ -274,17 +273,6 @@ function verify_shared_nonce( $nonce, $action ) {
 
 	// Invalid nonce
 	return false;
-}
-
-/**
- * Output Javascript for anonymous users
- *
- * Short and sweet, nothing to do here.
- */
-function output_javascript_nopriv() {
-	header( 'Content-Type: application/javascript' );
-
-	exit;
 }
 
 /**
