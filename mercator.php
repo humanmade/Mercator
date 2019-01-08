@@ -219,6 +219,9 @@ function check_table() {
 	$result = dbDelta( $schema );
 	$wpdb->ms_global_tables[] = 'domain_mapping';
 
+	// Update db version option.
+	update_site_option( 'mercator.db.version', VERSION );
+	
 	if ( empty( $result ) ) {
 		// No changes, database already exists and is up-to-date
 		return 'exists';
@@ -226,9 +229,6 @@ function check_table() {
 
 	// utf8mb4 conversion.
 	maybe_convert_table_to_utf8mb4( $wpdb->dmtable );
-
-	// Update db version option.
-	update_site_option( 'mercator.db.version', VERSION );
 
 	return 'created';
 }
