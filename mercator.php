@@ -300,6 +300,8 @@ function register_mapped_filters() {
 	$GLOBALS['mercator_current_mapping'] = $mapping;
 	add_filter( 'site_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
 	add_filter( 'home_url', __NAMESPACE__ . '\\mangle_url', -10, 4 );
+	add_filter( 'plugins_url', __NAMESPACE__ . '\\mangle_url', -10, 2 );
+	add_filter( 'content_url', __NAMESPACE__ . '\\mangle_url', -10, 2 );
 
 	// If on network site, also filter network urls
 	if ( is_main_site() ) {
@@ -317,7 +319,7 @@ function register_mapped_filters() {
  * @param int|null    $site_id Blog ID, or null for the current blog.
  * @return string Mangled URL
  */
-function mangle_url( $url, $path, $orig_scheme, $site_id = 0 ) {
+function mangle_url( $url, $path, $orig_scheme = '', $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
 		$site_id = get_current_blog_id();
 	}
