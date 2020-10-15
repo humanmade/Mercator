@@ -504,11 +504,7 @@ function handle_login_response() {
 	// Fetch using the token
 	$users = get_users( array(
 		'meta_key'     => 'mercator_sso_' . $args['key'],
-
-		// Check that the value exists (WP doesn't support EXISTS, so use a
-		// dummy value that will never match)
-		'meta_value'   => 'dummy_value',
-		'meta_compare' => '!=',
+		'meta_compare' => 'EXISTS',
 
 		// Skip capability check
 		'blog_id'      => 0,
