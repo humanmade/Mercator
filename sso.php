@@ -490,7 +490,7 @@ function get_login_url( $user, $args ) {
  * with an authentication token.
  */
 function handle_login_response() {
-	$arg_keys = array( 'nonce', 'key' );
+	$arg_keys = array( 'nonce', 'key', 'token' );
 	$args = array();
 	foreach ( $arg_keys as $key ) {
 		$args[ $key ] = empty( $_GET[ $key ] ) ? '' : wp_unslash( $_GET[ $key ] );
