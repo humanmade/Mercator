@@ -273,7 +273,7 @@ class Mapping {
 	 * Convert list of data to Mapping instances
 	 *
 	 * @param stdClass[] $data Raw mapping rows
-	 * @return Mapping[]
+	 * @return Mapping[] Array of Mapping objects
 	 */
 	protected static function to_instances( $data ) {
 		return array_map( array( get_called_class(), 'to_instance' ), $data );
@@ -315,7 +315,7 @@ class Mapping {
 	 * Get mapping by site ID
 	 *
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
-	 * @return Mapping|WP_Error|null Mapping on success, WP_Error if error occurred, or null if no mapping found
+	 * @return Mapping[]|WP_Error|null Array of Mapping objects on success, WP_Error if error occurred, or null if no mapping found
 	 */
 	public static function get_by_site( $site ) {
 		global $wpdb;
