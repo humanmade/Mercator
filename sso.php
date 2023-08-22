@@ -471,6 +471,7 @@ function get_login_url( $user, $args ) {
 		'action' => ACTION_LOGIN,
 		'key'    => $key,
 		'nonce'  => create_shared_nonce( 'mercator-sso-login|' . $key ),
+		'token'  => wp_get_session_token(),
 	);
 	$admin_url = get_admin_url( $args['site'], 'admin-ajax.php', 'relative' );
 	$admin_url = add_query_arg( urlencode_deep( $url_args ), $admin_url );
@@ -489,7 +490,7 @@ function get_login_url( $user, $args ) {
  * with an authentication token.
  */
 function handle_login_response() {
-	$arg_keys = array( 'nonce', 'key' );
+	$arg_keys = array( 'nonce', 'key', 'token' );
 	$args = array();
 	foreach ( $arg_keys as $key ) {
 		$args[ $key ] = empty( $_GET[ $key ] ) ? '' : wp_unslash( $_GET[ $key ] );
@@ -550,7 +551,7 @@ function handle_login_response() {
 	}
 
 	wp_set_current_user( $token['user'] );
-	wp_set_auth_cookie( $token['user'], true );
+	wp_set_auth_cookie( $token['user'], true, '', $args['token'] );
 
 	// Logged in, return to sender.
 	wp_redirect( $token['back'] );
