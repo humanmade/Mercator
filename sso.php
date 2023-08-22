@@ -329,7 +329,7 @@ window.MercatorSSO = function() {
 
 	document.write('<body>');
 	document.body.style.display='none';
-	window.location = '<?php echo addslashes( esc_js( $url ) ); ?>&fragment='+encodeURIComponent(document.location.hash);
+	window.location = '<?php echo addslashes( esc_url_raw( $url ) ); ?>&fragment='+encodeURIComponent(document.location.hash);
 };
 <?php
 
