@@ -263,7 +263,7 @@ function clear_mappings_on_delete( $site ) {
 			$message = sprintf(
 				__( 'Unable to delete mapping %1$d for site %2$d', 'mercator' ),
 				$mapping->get_id(),
-				$site_id
+				$site->id
 			);
 			trigger_error( $message, E_USER_WARNING );
 		}
