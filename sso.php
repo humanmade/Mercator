@@ -73,13 +73,15 @@ function bootstrap() {
  */
 function initialize_cookie_domain() {
 	if ( empty( $GLOBALS['mercator_current_mapping'] ) ) {
-		return;
-	}
+		//return;
+	        $cookie_domain = strtolower( wp_unslash( $_SERVER['HTTP_HOST'] ) );
+	} else {
+        	// Do the ms-settings dance, again.
+        	$current_mapping = $GLOBALS['mercator_current_mapping'];
 
-	// Do the ms-settings dance, again.
-	$current_mapping = $GLOBALS['mercator_current_mapping'];
+        	$cookie_domain = $current_mapping->get_domain();
+    	}
 
-	$cookie_domain = $current_mapping->get_domain();
 	if ( substr( $cookie_domain, 0, 4 ) === 'www.' ) {
 		$cookie_domain = substr( $cookie_domain, 4 );
 	}
