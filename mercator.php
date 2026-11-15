@@ -274,6 +274,10 @@ function clear_mappings_on_delete( $site ) {
  * Register filters for URLs, if we've mapped
  */
 function register_mapped_filters() {
+	if ( empty( $_SERVER['HTTP_HOST'] ) ) {
+		return;
+	}
+
 	$current_site = $GLOBALS['current_blog'];
 	$real_domain = $current_site->domain;
 	$domain = $_SERVER['HTTP_HOST'];
